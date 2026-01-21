@@ -1,0 +1,68 @@
+### Create a new reservation
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+
+{
+  "room": "Room A",
+  "startTime": "2026-01-22T09:00:00Z",
+  "endTime": "2026-01-22T10:00:00Z"
+}
+
+### Create another reservation in the same room (different time)
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+
+{
+  "room": "Room A",
+  "startTime": "2026-01-22T11:00:00Z",
+  "endTime": "2026-01-22T12:00:00Z"
+}
+
+### Create a reservation in a different room
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+
+{
+  "room": "Room B",
+  "startTime": "2026-01-22T09:00:00Z",
+  "endTime": "2026-01-22T10:00:00Z"
+}
+
+### Try to create overlapping reservation (should fail)
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+
+{
+  "room": "Room A",
+  "startTime": "2026-01-22T09:30:00Z",
+  "endTime": "2026-01-22T10:30:00Z"
+}
+
+### Try to create reservation with missing fields (should fail)
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+
+{
+  "room": "Room C",
+  "startTime": "2026-01-22T14:00:00Z"
+}
+
+### Try to create reservation in the past (should fail)
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+
+{
+  "room": "Room D",
+  "startTime": "2026-01-20T09:00:00Z",
+  "endTime": "2026-01-20T10:00:00Z"
+}
+
+### Try to create reservation where start time is after end time (should fail)
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+
+{
+  "room": "Room E",
+  "startTime": "2026-01-22T12:00:00Z",
+  "endTime": "2026-01-22T11:00:00Z"
+}

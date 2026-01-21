@@ -1,0 +1,6 @@
+### Get all available rooms
+GET http://localhost:3000/api/reservations/rooms/list
+
+### Get all rooms (after creating some reservations)
+### First create reservations using create-reservation.rest
+GET http://localhost:3000/api/reservations/rooms/list

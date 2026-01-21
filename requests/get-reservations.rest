@@ -1,0 +1,11 @@
+### Get all reservations for Room A
+GET http://localhost:3000/api/reservations/Room A
+
+### Get all reservations for Room B
+GET http://localhost:3000/api/reservations/Room B
+
+### Get reservations for a room with no bookings
+GET http://localhost:3000/api/reservations/Room Z
+
+### Get reservations for room with special characters
+GET http://localhost:3000/api/reservations/Main Conference Room

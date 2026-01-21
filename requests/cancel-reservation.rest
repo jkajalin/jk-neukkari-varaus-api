@@ -1,0 +1,9 @@
+### Cancel reservation by ID (path parameter - recommended)
+### First run create-reservation.rest to get a reservation ID
+DELETE http://localhost:3000/api/reservations/1234567890
+
+### Cancel another reservation by ID
+DELETE http://localhost:3000/api/reservations/1234567891
+
+### Try to cancel a non-existent reservation (should fail)
+DELETE http://localhost:3000/api/reservations/nonexistent-id
