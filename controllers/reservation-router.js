@@ -1,16 +1,22 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 
-function createReservationRouter(reservations) {
+function createReservationRouter(reservations, rooms = []) {
     const router = express.Router();
 
     // Create a reservation
     router.post('/', (req, res) => {
-        const { room, startTime, endTime } = req.body;
+        const { roomId, startTime, endTime } = req.body;
         
         // Validate required fields
-        if (!room || !startTime || !endTime) {
-            return res.status(400).json({ message: 'Room, startTime, and endTime are required.' });
+        if (!roomId || !startTime || !endTime) {
+            return res.status(400).json({ message: 'Room ID, startTime, and endTime are required.' });
+        }
+
+        // Check if room exists
+        const room = rooms.find(r => r.id === roomId);
+        if (!room) {
+            return res.status(404).json({ message: 'Room not found.' });
         }
 
         const now = new Date();
@@ -29,7 +35,7 @@ function createReservationRouter(reservations) {
 
         // Check for overlapping reservations
         const overlapping = reservations.some(reservation => 
-            reservation.room === room && 
+            reservation.roomId === roomId && 
             ((start < new Date(reservation.endTime)) && (end > new Date(reservation.startTime)))
         );
 
@@ -38,7 +44,7 @@ function createReservationRouter(reservations) {
         }
 
         // Add the reservation
-        const newReservation = { room, startTime, endTime, id: uuidv4() };
+        const newReservation = { roomId, startTime, endTime, id: uuidv4() };
         reservations.push(newReservation);
         res.status(201).json({ message: 'Reservation created successfully.', reservation: newReservation });
     });
@@ -66,9 +72,9 @@ function createReservationRouter(reservations) {
     });
 
     // Get all reservations for a room
-    router.get('/:room', (req, res) => {
-        const { room } = req.params;
-        const roomReservations = reservations.filter(reservation => reservation.room === room);
+    router.get('/:roomId', (req, res) => {
+        const { roomId } = req.params;
+        const roomReservations = reservations.filter(reservation => reservation.roomId === roomId);
         res.status(200).json(roomReservations);
     });
 

@@ -559,3 +559,175 @@ Tests:       57 passed, 57 total
 - ✅ Proper REST conventions (PUT for updates)
 
 ---
+
+## Conversation 18
+
+### Prompt 18: Enforce room ID validation in reservations
+Could you fix create reservation route to check if room exist. Use room ID to check that.
+
+### Response 18
+Implemented room ID validation for reservations with comprehensive refactoring:
+
+**Major Change: Data Integrity Enforcement**
+Shifted from name-based room references to UUID-based references for referential integrity:
+- **Before**: Reservations stored `room: 'Room A'` (string, no validation)
+- **After**: Reservations store `roomId: '<uuid>'` (requires actual room to exist)
+
+**Files Updated:**
+
+1. **[server.js](server.js)** - UPDATED
+   - Changed reservation router initialization to pass rooms array for validation
+   - **Before**: `createReservationRouter(reservations)`
+   - **After**: `createReservationRouter(reservations, rooms)`
+   - This enables room existence validation in all reservation operations
+
+2. **[controllers/reservation-router.js](controllers/reservation-router.js)** - FULLY UPDATED
+   - Function signature: `function createReservationRouter(reservations, rooms = [])`
+   - **POST /api/reservations**:
+     - Changed parameter from `room` to `roomId`
+     - Added validation: `const room = rooms.find(r => r.id === roomId)`
+     - Returns 404 if room doesn't exist with message "Room not found."
+     - Stores `roomId` in reservation object
+   - **GET /api/reservations/:roomId**:
+     - Updated parameter from `/:room` to `/:roomId`
+     - Filter logic: `reservation.roomId === roomId`
+
+   **Code Example (POST endpoint):**
+   ```javascript
+   router.post('/', (req, res) => {
+       const { roomId, startTime, endTime } = req.body;
+       
+       // Validate room exists
+       const room = rooms.find(r => r.id === roomId);
+       if (!room) {
+           return res.status(404).json({ message: 'Room not found.' });
+       }
+       
+       // ... existing validation logic ...
+       
+       // Create reservation with roomId
+       const newReservation = { id: uuidv4(), roomId, startTime, endTime };
+       reservations.push(newReservation);
+       // ...
+   });
+   ```
+
+3. **[__tests__/create-reservation.test.js](__tests__/create-reservation.test.js)** - UPDATED (11 tests)
+   - Added room router import: `const createRoomRouter = require('../controllers/room-router');`
+   - Updated beforeEach to initialize rooms array and mount room router
+   - All 11 tests refactored to:
+     - Create room first via `POST /api/rooms`
+     - Extract `roomId` from response
+     - Use `roomId` in reservation requests
+   - New test added: "Should return error when room does not exist" (404 validation)
+   
+   **Test Pattern Applied:**
+   ```javascript
+   const roomRes = await request(app)
+       .post('/api/rooms')
+       .send({ name: 'Room A' });
+   const roomId = roomRes.body.room.id;
+   
+   const response = await request(app)
+       .post('/api/reservations')
+       .send({ roomId, startTime, endTime });
+   ```
+
+4. **[__tests__/cancel-reservation.test.js](__tests__/cancel-reservation.test.js)** - UPDATED (6 tests)
+   - Same refactoring as create-reservation.test.js
+   - All 6 tests now create rooms before cancellation operations
+   - All tests use roomId pattern
+
+5. **[__tests__/get-reservations.test.js](__tests__/get-reservations.test.js)** - UPDATED (8 tests)
+   - Describe block updated: "Reservation Router - GET /api/reservations/:roomId"
+   - All 8 tests refactored to create rooms first
+   - All tests use roomId parameter and validation
+
+6. **[requests/create-reservation.rest](requests/create-reservation.rest)** - UPDATED
+   - Added note: "Replace the roomId values below with actual room IDs"
+   - Changed all `"room": "Room A"` to `"roomId": "<uuid>"`
+   - Uses example UUIDs with instructions for real usage
+
+7. **[requests/get-reservations.rest](requests/get-reservations.rest)** - UPDATED
+   - Changed endpoints from room names to roomId format
+   - Added note about replacing roomId values with actual IDs
+
+8. **[requests/cancel-reservation.rest](requests/cancel-reservation.rest)** - UPDATED
+   - Updated example reservation IDs to UUID format
+   - Added comment for non-existent room test (404 error)
+
+9. **[requests/list-rooms.rest](requests/list-rooms.rest)** - FIXED
+   - Fixed incorrect endpoints from `/api/reservations/rooms/list` to `/api/rooms`
+
+**Test Results:**
+```
+Test Suites: 5 passed, 5 total
+Tests:       58 passed, 58 total
+- room.test.js:                    25 tests ✓
+- list-rooms.test.js:              7 tests ✓
+- create-reservation.test.js:      12 tests ✓ (+1 new room validation test)
+- cancel-reservation.test.js:      6 tests ✓
+- get-reservations.test.js:        8 tests ✓
+
+All tests passing ✅
+```
+
+**Key Improvements:**
+
+1. **Data Integrity**: Reservations now require actual rooms to exist
+   - Cannot create reservation for non-existent room (404 error)
+   - Cannot reference deleted rooms in existing reservations
+   - Enforced at API level, not just application logic
+
+2. **UUID-Based References**: Rooms identified by unique IDs, not mutable names
+   - Room names can be changed without affecting reservations
+   - Prevents ambiguity from duplicate room names
+   - More robust data model
+
+3. **Comprehensive Validation**: Room existence checked before:
+   - Creating new reservation
+   - Querying reservations by room
+   - Overlap detection works with roomId
+
+4. **Consistent Pattern**: All reservation test files follow same setup
+   - Room creation in beforeEach or test start
+   - roomId extraction from response
+   - roomId used in all reservation operations
+
+5. **Request Files Updated**: All .rest files now document correct parameter types
+   - Example UUIDs with instructions
+   - Notes about creating rooms first
+   - Accurate endpoint paths
+
+**API Impact:**
+
+Request body changed:
+```json
+// Before
+{ "room": "Room A", "startTime": "...", "endTime": "..." }
+
+// After
+{ "roomId": "550e8400-e29b-41d4-a716-446655440000", "startTime": "...", "endTime": "..." }
+```
+
+Query parameter changed:
+```
+// Before
+GET /api/reservations/Room A
+
+// After
+GET /api/reservations/550e8400-e29b-41d4-a716-446655440000
+```
+
+**Architectural Summary:**
+
+The reservation system now follows a **referential integrity pattern**:
+1. Rooms created first (POST /api/rooms)
+2. Each room receives unique UUID
+3. Reservations reference rooms by UUID (not name)
+4. System validates room exists before creating reservation
+5. Queries use roomId to filter reservations
+
+This provides stronger data consistency and prevents orphaned reservations if rooms are modified or deleted.
+
+---

@@ -15,7 +15,7 @@ let rooms = [];
 app.disable('x-powered-by')
 
 // Use the routers
-app.use('/api/reservations', createReservationRouter(reservations));
+app.use('/api/reservations', createReservationRouter(reservations, rooms));
 app.use('/api/rooms', createRoomRouter(rooms));
 
 app.listen(PORT, () => {

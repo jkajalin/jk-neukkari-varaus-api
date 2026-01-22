@@ -1,11 +1,14 @@
+### NOTE: Before running these requests, first create rooms using room-operations.rest
+### Replace the roomId values below with actual room IDs returned from POST /api/rooms
+
 ### Create a new reservation
 POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "room": "Room A",
-  "startTime": "2026-01-22T09:00:00Z",
-  "endTime": "2026-01-22T10:00:00Z"
+  "roomId": "3b4cedb0-2c96-4c6b-8f2f-009287b3c22a",
+  "startTime": "2026-02-22T09:00:00Z",
+  "endTime": "2026-02-22T10:00:00Z"
 }
 
 ### Create another reservation in the same room (different time)
@@ -13,9 +16,9 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "room": "Room A",
-  "startTime": "2026-01-22T11:00:00Z",
-  "endTime": "2026-01-22T12:00:00Z"
+  "roomId": "3b4cedb0-2c96-4c6b-8f2f-009287b3c22a",
+  "startTime": "2026-02-22T11:00:00Z",
+  "endTime": "2026-02-22T12:00:00Z"
 }
 
 ### Create a reservation in a different room
@@ -23,9 +26,9 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "room": "Room B",
-  "startTime": "2026-01-22T09:00:00Z",
-  "endTime": "2026-01-22T10:00:00Z"
+  "roomId": "4b77dfe8-cba6-4ea3-809c-e548ae5329bb",
+  "startTime": "2026-02-22T09:00:00Z",
+  "endTime": "2026-02-22T10:00:00Z"
 }
 
 ### Try to create overlapping reservation (should fail)
@@ -33,7 +36,7 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "room": "Room A",
+  "roomId": "550e8400-e29b-41d4-a716-446655440000",
   "startTime": "2026-01-22T09:30:00Z",
   "endTime": "2026-01-22T10:30:00Z"
 }
@@ -43,7 +46,7 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "room": "Room C",
+  "roomId": "550e8400-e29b-41d4-a716-446655440002",
   "startTime": "2026-01-22T14:00:00Z"
 }
 
@@ -52,7 +55,7 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "room": "Room D",
+  "roomId": "550e8400-e29b-41d4-a716-446655440003",
   "startTime": "2026-01-20T09:00:00Z",
   "endTime": "2026-01-20T10:00:00Z"
 }
@@ -62,7 +65,7 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "room": "Room E",
+  "roomId": "550e8400-e29b-41d4-a716-446655440004",
   "startTime": "2026-01-22T12:00:00Z",
   "endTime": "2026-01-22T11:00:00Z"
 }

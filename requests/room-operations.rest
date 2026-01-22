@@ -24,7 +24,7 @@ GET http://localhost:3000/api/rooms
 ###
 
 ### Update Room (Replace ID with actual UUID)
-PUT http://localhost:3000/api/rooms/ddb8af7b-ab04-46b1-83a3-c2ca209ed6bc
+PUT http://localhost:3000/api/rooms/b3c4c561-2fdd-4539-b012-023bff0eec54
 Content-Type: application/json
 
 {
