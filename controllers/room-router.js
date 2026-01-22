@@ -50,6 +50,37 @@ function createRoomRouter(rooms) {
         res.status(200).json(rooms);
     });
 
+    // Update a room by ID
+    router.put('/:id', (req, res) => {
+        const { id } = req.params;
+        const { name } = req.body;
+
+        // Validate required fields
+        if (!id) {
+            return res.status(400).json({ message: 'Room ID is required.' });
+        }
+
+        if (!name) {
+            return res.status(400).json({ message: 'Room name is required.' });
+        }
+
+        // Find the room to update
+        const room = rooms.find(r => r.id === id);
+        if (!room) {
+            return res.status(404).json({ message: 'Room not found.' });
+        }
+
+        // Check if new name already exists (but allow same name)
+        const existingRoom = rooms.find(r => r.name === name && r.id !== id);
+        if (existingRoom) {
+            return res.status(409).json({ message: 'Room name already exists.' });
+        }
+
+        // Update room name
+        room.name = name;
+        res.status(200).json({ message: 'Room updated successfully.', room });
+    });
+
     return router;
 }
 

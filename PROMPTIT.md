@@ -464,3 +464,98 @@ jk-neukkari-varaus/
 - ✅ UUID v4 used for all room IDs
 - ✅ Comprehensive edge case testing (duplicates, special characters, etc.)
 - ✅ REST request files for manual testing
+
+---
+
+## Conversation 17
+
+### Prompt 17: Add room edit endpoint
+Could you add route to edit room ( name ).
+
+### Response 17
+Implemented room edit endpoint with comprehensive testing:
+
+**Files Updated:**
+
+1. **[controllers/room-router.js](controllers/room-router.js)** - UPDATED
+   - Added PUT /api/rooms/:id endpoint to update room name
+   - Validates room ID and name are provided
+   - Prevents duplicate room names (allows same room to keep its name)
+   - Returns updated room with success message
+   - Proper error handling for missing room, invalid input, and duplicates
+
+2. **[__tests__/room.test.js](__tests__/room.test.js)** - UPDATED
+   - Added 9 new tests for PUT /api/rooms/:id:
+     - Should update room name successfully
+     - Should return 404 when room ID is empty string
+     - Should return error when room name is missing
+     - Should return error when room ID does not exist
+     - Should return error when new name already exists
+     - Should allow updating room to the same name
+     - Should update one room without affecting others
+     - Should allow special characters in updated room name
+     - Should reflect updated room name in list
+
+3. **[requests/room-operations.rest](requests/room-operations.rest)** - UPDATED
+   - Added PUT request example for updating room name
+
+**Code Implementation (PUT endpoint):**
+\\\javascript
+router.put('/:id', (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    // Validate required fields
+    if (!id) {
+        return res.status(400).json({ message: 'Room ID is required.' });
+    }
+
+    if (!name) {
+        return res.status(400).json({ message: 'Room name is required.' });
+    }
+
+    // Find the room to update
+    const room = rooms.find(r => r.id === id);
+    if (!room) {
+        return res.status(404).json({ message: 'Room not found.' });
+    }
+
+    // Check if new name already exists (but allow same name)
+    const existingRoom = rooms.find(r => r.name === name && r.id !== id);
+    if (existingRoom) {
+        return res.status(409).json({ message: 'Room name already exists.' });
+    }
+
+    // Update room name
+    room.name = name;
+    res.status(200).json({ message: 'Room updated successfully.', room });
+});
+\\\
+
+**Test Results:**
+\\\
+Test Suites: 5 passed, 5 total
+Tests:       57 passed, 57 total
+- room.test.js:                    25 tests ✓ (16 original + 9 new)
+- list-rooms.test.js:              7 tests ✓
+- create-reservation.test.js:      11 tests ✓
+- cancel-reservation.test.js:      6 tests ✓
+- get-reservations.test.js:        8 tests ✓
+\\\
+
+**Room API Complete CRUD:**
+- ✅ POST /api/rooms - Create room
+- ✅ PUT /api/rooms/:id - Update room name
+- ✅ DELETE /api/rooms/:id - Delete room
+- ✅ GET /api/rooms - List all rooms
+
+**Key Features:**
+- ✅ UUID v4 for unique room IDs
+- ✅ Duplicate room name prevention (with exception for same room)
+- ✅ Comprehensive input validation
+- ✅ Special character support in room names
+- ✅ 9 comprehensive test cases covering edge cases
+- ✅ Error responses with clear messages (400, 404, 409 status codes)
+- ✅ Proper REST conventions (PUT for updates)
+
+---

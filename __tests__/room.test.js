@@ -279,3 +279,166 @@ describe('Room Router - GET /api/rooms', () => {
         expect(Array.isArray(response.body)).toBe(true);
     });
 });
+
+describe('Room Router - PUT /api/rooms/:id', () => {
+    let app;
+    let rooms;
+
+    beforeEach(() => {
+        app = express();
+        app.use(express.json());
+        rooms = [];
+        app.use('/api/rooms', createRoomRouter(rooms));
+    });
+
+    // Valid room update
+    test('Should update room name successfully', async () => {
+        const createRes = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
+
+        const roomId = createRes.body.room.id;
+
+        const updateRes = await request(app)
+            .put(`/api/rooms/${roomId}`)
+            .send({ name: 'Updated Room A' });
+
+        expect(updateRes.status).toBe(200);
+        expect(updateRes.body.message).toBe('Room updated successfully.');
+        expect(updateRes.body.room.id).toBe(roomId);
+        expect(updateRes.body.room.name).toBe('Updated Room A');
+    });
+
+    // Edge case: Missing room ID
+    test('Should return 404 when room ID is empty string', async () => {
+        // When request path is /api/rooms/, it becomes empty string for ID
+        const response = await request(app)
+            .put('/api/rooms/')
+            .send({ name: 'New Name' });
+
+        // Since ID is empty string, it won't find a matching room
+        expect(response.status).toBe(404);
+    });
+
+    // Edge case: Missing room name
+    test('Should return error when room name is missing', async () => {
+        const createRes = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
+
+        const roomId = createRes.body.room.id;
+
+        const response = await request(app)
+            .put(`/api/rooms/${roomId}`)
+            .send({});
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toContain('required');
+    });
+
+    // Edge case: Non-existent room ID
+    test('Should return error when room ID does not exist', async () => {
+        const response = await request(app)
+            .put('/api/rooms/nonexistent-id')
+            .send({ name: 'New Name' });
+
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('Room not found.');
+    });
+
+    // Edge case: Duplicate room name
+    test('Should return error when new name already exists', async () => {
+        const res1 = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
+
+        const res2 = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room B' });
+
+        const roomId2 = res2.body.room.id;
+
+        const response = await request(app)
+            .put(`/api/rooms/${roomId2}`)
+            .send({ name: 'Room A' });
+
+        expect(response.status).toBe(409);
+        expect(response.body.message).toContain('already exists');
+    });
+
+    // Edge case: Update to same name
+    test('Should allow updating room to the same name', async () => {
+        const createRes = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
+
+        const roomId = createRes.body.room.id;
+
+        const response = await request(app)
+            .put(`/api/rooms/${roomId}`)
+            .send({ name: 'Room A' });
+
+        expect(response.status).toBe(200);
+        expect(response.body.room.name).toBe('Room A');
+    });
+
+    // Update multiple rooms independently
+    test('Should update one room without affecting others', async () => {
+        const res1 = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
+
+        const res2 = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room B' });
+
+        const roomId1 = res1.body.room.id;
+
+        const updateRes = await request(app)
+            .put(`/api/rooms/${roomId1}`)
+            .send({ name: 'Updated Room A' });
+
+        expect(updateRes.status).toBe(200);
+        expect(updateRes.body.room.name).toBe('Updated Room A');
+
+        // Verify Room B is unchanged
+        const listRes = await request(app).get('/api/rooms');
+        const roomB = listRes.body.find(r => r.id === res2.body.room.id);
+        expect(roomB.name).toBe('Room B');
+    });
+
+    // Special characters in updated name
+    test('Should allow special characters in updated room name', async () => {
+        const createRes = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
+
+        const roomId = createRes.body.room.id;
+
+        const response = await request(app)
+            .put(`/api/rooms/${roomId}`)
+            .send({ name: 'Conference Room - Floor 2 (Main)' });
+
+        expect(response.status).toBe(200);
+        expect(response.body.room.name).toBe('Conference Room - Floor 2 (Main)');
+    });
+
+    // Verify list reflects update
+    test('Should reflect updated room name in list', async () => {
+        const createRes = await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
+
+        const roomId = createRes.body.room.id;
+
+        await request(app)
+            .put(`/api/rooms/${roomId}`)
+            .send({ name: 'Renamed Room A' });
+
+        const listRes = await request(app).get('/api/rooms');
+
+        expect(listRes.body.length).toBe(1);
+        expect(listRes.body[0].name).toBe('Renamed Room A');
+        expect(listRes.body[0].id).toBe(roomId);
+    });
+});

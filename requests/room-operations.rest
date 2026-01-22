@@ -23,7 +23,17 @@ GET http://localhost:3000/api/rooms
 
 ###
 
+### Update Room (Replace ID with actual UUID)
+PUT http://localhost:3000/api/rooms/ddb8af7b-ab04-46b1-83a3-c2ca209ed6bc
+Content-Type: application/json
+
+{
+  "name": "Updated Room Name"
+}
+
+###
+
 ### Delete Room (Replace ID with actual UUID)
-DELETE http://localhost:3000/api/rooms/550e8400-e29b-41d4-a716-446655440000
+DELETE http://localhost:3000/api/rooms/ddb8af7b-ab04-46b1-83a3-c2ca209ed6bc
 
 ###
