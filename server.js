@@ -11,6 +11,9 @@ app.use(express.json());
 let reservations = [];
 let rooms = [];
 
+// Disable 'X-Powered-By' header for security
+app.disable('x-powered-by')
+
 // Use the routers
 app.use('/api/reservations', createReservationRouter(reservations));
 app.use('/api/rooms', createRoomRouter(rooms));
