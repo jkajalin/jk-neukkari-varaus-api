@@ -65,16 +65,6 @@ function createReservationRouter(reservations) {
         res.status(200).json({ message: 'Reservation cancelled successfully.' });
     });
 
-    // Get all rooms
-    router.get('/rooms/list', (req, res) => {
-        const uniqueRooms = [...new Set(reservations.map(reservation => reservation.room))];
-        const rooms = uniqueRooms.map((room, index) => ({
-            id: index + 1,
-            name: room
-        }));
-        res.status(200).json(rooms);
-    });
-
     // Get all reservations for a room
     router.get('/:room', (req, res) => {
         const { room } = req.params;

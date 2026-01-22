@@ -1,0 +1,29 @@
+### Create Room
+POST http://localhost:3000/api/rooms
+Content-Type: application/json
+
+{
+  "name": "Room A"
+}
+
+###
+
+### Create Another Room
+POST http://localhost:3000/api/rooms
+Content-Type: application/json
+
+{
+  "name": "Conference Hall"
+}
+
+###
+
+### List All Rooms
+GET http://localhost:3000/api/rooms
+
+###
+
+### Delete Room (Replace ID with actual UUID)
+DELETE http://localhost:3000/api/rooms/550e8400-e29b-41d4-a716-446655440000
+
+###

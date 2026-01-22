@@ -1,189 +1,118 @@
 const request = require('supertest');
 const express = require('express');
-const createReservationRouter = require('../reservation-router');
+const createRoomRouter = require('../controllers/room-router');
 
-describe('Reservation Router - GET /api/reservations/rooms/list', () => {
+describe('Room API - GET /api/rooms', () => {
     let app;
-    let reservations;
+    let rooms;
 
     beforeEach(() => {
         app = express();
         app.use(express.json());
-        reservations = [];
-        app.use('/api/reservations', createReservationRouter(reservations));
+        rooms = [];
+        app.use('/api/rooms', createRoomRouter(rooms));
     });
 
-    // Valid retrieval - no rooms
-    test('Should return empty array when no reservations exist', async () => {
+    // Empty list
+    test('Should return empty array when no rooms exist', async () => {
         const response = await request(app)
-            .get('/api/reservations/rooms/list');
+            .get('/api/rooms');
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(0);
     });
 
-    // Valid retrieval - single room
-    test('Should return single room when one reservation exists', async () => {
-        const futureStart = new Date(Date.now() + 86400000).toISOString();
-        const futureEnd = new Date(Date.now() + 90000000).toISOString();
-
-        // Create reservation for Room A
+    // Single room
+    test('Should return single room when one room exists', async () => {
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room A',
-                startTime: futureStart,
-                endTime: futureEnd
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
 
         const response = await request(app)
-            .get('/api/reservations/rooms/list');
+            .get('/api/rooms');
 
         expect(response.status).toBe(200);
         expect(response.body.length).toBe(1);
         expect(response.body[0]).toHaveProperty('id');
         expect(response.body[0]).toHaveProperty('name');
         expect(response.body[0].name).toBe('Room A');
-        expect(response.body[0].id).toBe(1);
     });
 
-    // Valid retrieval - multiple rooms
-    test('Should return multiple rooms with correct IDs', async () => {
-        const futureStart1 = new Date(Date.now() + 86400000).toISOString();
-        const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
-        const futureStart2 = new Date(Date.now() + 93600000).toISOString();
-        const futureEnd2 = new Date(Date.now() + 97200000).toISOString();
-        const futureStart3 = new Date(Date.now() + 100800000).toISOString();
-        const futureEnd3 = new Date(Date.now() + 104400000).toISOString();
-
-        // Create reservations for three different rooms
+    // Multiple rooms
+    test('Should return multiple rooms with correct structure', async () => {
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room A',
-                startTime: futureStart1,
-                endTime: futureEnd1
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
 
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room B',
-                startTime: futureStart2,
-                endTime: futureEnd2
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room B' });
 
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Meeting Hall',
-                startTime: futureStart3,
-                endTime: futureEnd3
-            });
+            .post('/api/rooms')
+            .send({ name: 'Conference Hall' });
 
         const response = await request(app)
-            .get('/api/reservations/rooms/list');
+            .get('/api/rooms');
 
         expect(response.status).toBe(200);
         expect(response.body.length).toBe(3);
         expect(response.body[0].name).toBe('Room A');
-        expect(response.body[0].id).toBe(1);
         expect(response.body[1].name).toBe('Room B');
-        expect(response.body[1].id).toBe(2);
-        expect(response.body[2].name).toBe('Meeting Hall');
-        expect(response.body[2].id).toBe(3);
+        expect(response.body[2].name).toBe('Conference Hall');
     });
 
-    // Edge case: Duplicate rooms from multiple reservations
-    test('Should return unique rooms only (not duplicates)', async () => {
-        const futureStart1 = new Date(Date.now() + 86400000).toISOString();
-        const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
-        const futureStart2 = new Date(Date.now() + 93600000).toISOString();
-        const futureEnd2 = new Date(Date.now() + 97200000).toISOString();
-        const futureStart3 = new Date(Date.now() + 100800000).toISOString();
-        const futureEnd3 = new Date(Date.now() + 104400000).toISOString();
-
-        // Create three reservations, two in the same room
+    // All rooms returned
+    test('Should return all created rooms', async () => {
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room A',
-                startTime: futureStart1,
-                endTime: futureEnd1
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
 
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room B',
-                startTime: futureStart2,
-                endTime: futureEnd2
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room A 2' });
 
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room A',
-                startTime: futureStart3,
-                endTime: futureEnd3
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room B' });
 
         const response = await request(app)
-            .get('/api/reservations/rooms/list');
+            .get('/api/rooms');
 
         expect(response.status).toBe(200);
-        expect(response.body.length).toBe(2);
-        expect(response.body[0].name).toBe('Room A');
-        expect(response.body[1].name).toBe('Room B');
+        expect(response.body.length).toBe(3);
+        expect(response.body.map(r => r.name)).toContain('Room A');
+        expect(response.body.map(r => r.name)).toContain('Room A 2');
+        expect(response.body.map(r => r.name)).toContain('Room B');
     });
 
-    // Edge case: Verify JSON format and headers
+    // JSON format
     test('Should return proper JSON format with correct headers', async () => {
-        const futureStart = new Date(Date.now() + 86400000).toISOString();
-        const futureEnd = new Date(Date.now() + 90000000).toISOString();
-
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room A',
-                startTime: futureStart,
-                endTime: futureEnd
-            });
+            .post('/api/rooms')
+            .send({ name: 'Test Room' });
 
         const response = await request(app)
-            .get('/api/reservations/rooms/list');
+            .get('/api/rooms');
 
         expect(response.status).toBe(200);
         expect(response.type).toMatch(/json/);
         expect(Array.isArray(response.body)).toBe(true);
     });
 
-    // Edge case: Room names with special characters
+    // Special characters in room names
     test('Should handle room names with special characters', async () => {
-        const futureStart1 = new Date(Date.now() + 86400000).toISOString();
-        const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
-        const futureStart2 = new Date(Date.now() + 93600000).toISOString();
-        const futureEnd2 = new Date(Date.now() + 97200000).toISOString();
+        await request(app)
+            .post('/api/rooms')
+            .send({ name: 'Room-A_1.2' });
 
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room-A_1.2',
-                startTime: futureStart1,
-                endTime: futureEnd1
-            });
-
-        await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Main Conference Room (Floor 2)',
-                startTime: futureStart2,
-                endTime: futureEnd2
-            });
+            .post('/api/rooms')
+            .send({ name: 'Main Conference Room (Floor 2)' });
 
         const response = await request(app)
-            .get('/api/reservations/rooms/list');
+            .get('/api/rooms');
 
         expect(response.status).toBe(200);
         expect(response.body.length).toBe(2);
@@ -191,36 +120,22 @@ describe('Reservation Router - GET /api/reservations/rooms/list', () => {
         expect(response.body[1].name).toBe('Main Conference Room (Floor 2)');
     });
 
-    // Edge case: After cancellation
-    test('Should not include rooms with no active reservations', async () => {
-        const futureStart1 = new Date(Date.now() + 86400000).toISOString();
-        const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
-        const futureStart2 = new Date(Date.now() + 93600000).toISOString();
-        const futureEnd2 = new Date(Date.now() + 97200000).toISOString();
-
-        // Create reservations for two rooms
+    // Deletion is reflected in list
+    test('Should not include deleted rooms', async () => {
         const res1 = await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room A',
-                startTime: futureStart1,
-                endTime: futureEnd1
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room A' });
 
         await request(app)
-            .post('/api/reservations')
-            .send({
-                room: 'Room B',
-                startTime: futureStart2,
-                endTime: futureEnd2
-            });
+            .post('/api/rooms')
+            .send({ name: 'Room B' });
 
-        // Cancel first reservation
-        await request(app)
-            .delete(`/api/reservations/${res1.body.reservation.id}`);
+        // Delete Room A
+        const roomId = res1.body.room.id;
+        await request(app).delete(`/api/rooms/${roomId}`);
 
         const response = await request(app)
-            .get('/api/reservations/rooms/list');
+            .get('/api/rooms');
 
         expect(response.status).toBe(200);
         expect(response.body.length).toBe(1);

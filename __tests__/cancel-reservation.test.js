@@ -1,6 +1,6 @@
 const request = require('supertest');
 const express = require('express');
-const createReservationRouter = require('../reservation-router');
+const createReservationRouter = require('../controllers/reservation-router');
 
 describe('Reservation Router - DELETE /api/reservations', () => {
     let app;

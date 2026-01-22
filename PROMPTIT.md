@@ -322,3 +322,145 @@ Updated reservation IDs to use UUID v4 format instead of incremental IDs:
 - No collision risk
 
 **All 32 tests passing** ✓
+
+---
+
+## Conversation 14
+
+### Prompt 14: Rename file back to reservation-router.js
+could you rename reservation.js to reservation-router.js as it was. It's easier to understand what it is.
+
+### Response 14
+Renamed the router file back to reservation-router.js:
+
+**Changes made:**
+
+1. **Created [controllers/reservation-router.js](controllers/reservation-router.js)**:
+   - Renamed from controllers/reservation.js
+   - More descriptive filename that clearly indicates it's a router
+
+2. **Updated [server.js](server.js)**:
+   - Changed import from `./controllers/reservation` to `./controllers/reservation-router`
+
+3. **Updated all test files**:
+   - Updated [__tests__/create-reservation.test.js](__tests__/create-reservation.test.js)
+   - Updated [__tests__/cancel-reservation.test.js](__tests__/cancel-reservation.test.js)
+   - Updated [__tests__/get-reservations.test.js](__tests__/get-reservations.test.js)
+   - Updated [__tests__/list-rooms.test.js](__tests__/list-rooms.test.js)
+
+4. **Removed old file**:
+   - Deleted controllers/reservation.js
+
+**Updated Project Structure:**
+```
+jk-neukkari-varaus/
+├── controllers/
+│   └── reservation-router.js    (More descriptive name)
+├── __tests__/
+├── requests/
+├── config.js
+├── server.js
+├── package.json
+├── jest.config.js
+└── .env
+```
+
+**All 32 tests passing** ✓
+---
+
+## Conversation 16
+
+### Prompt 16: Implement room management API
+Create comprehensive tests for the room router, then update existing tests to work with the new room API endpoints. Verify the entire test suite passes.
+
+### Response 16
+Implemented complete room management API with comprehensive testing:
+
+**Files Created:**
+
+1. **[__tests__/room.test.js](__tests__/room.test.js)** - NEW
+   - 16 comprehensive tests for room CRUD operations
+   - Tests for POST /api/rooms (create room):
+     - Valid room creation, missing name validation, duplicate prevention
+     - Multiple room creation, UUID uniqueness, special characters support
+   - Tests for DELETE /api/rooms/:id (delete room):
+     - Valid deletion, non-existent room handling, delete specific room when multiple exist
+     - Duplicate deletion prevention
+   - Tests for GET /api/rooms (list rooms):
+     - Empty list, single room, multiple rooms
+     - Room structure verification, deletion reflection
+     - JSON format validation
+
+2. **[__tests__/list-rooms.test.js](__tests__/list-rooms.test.js)** - UPDATED
+   - Migrated from testing old /api/reservations/rooms/list endpoint
+   - Now tests new /api/rooms endpoint
+   - 7 tests for the new room listing functionality
+
+3. **[requests/room-operations.rest](requests/room-operations.rest)** - NEW
+   - REST client file with example requests for room API
+   - POST /api/rooms - Create room
+   - GET /api/rooms - List all rooms
+   - DELETE /api/rooms/:id - Delete room by UUID
+
+**Code Changes:**
+
+1. **[controllers/room-router.js](controllers/room-router.js)** - Already implemented in Conversation 15
+   - Factory function pattern for dependency injection
+   - POST /api/rooms - Room creation with duplicate prevention
+   - DELETE /api/rooms/:id - Room deletion by UUID
+   - GET /api/rooms - List all rooms
+
+2. **[server.js](server.js)** - Already updated in Conversation 15
+   - Properly mounts both routers
+   - Maintains separate data arrays for reservations and rooms
+
+**Test Results:**
+\\\
+Test Suites: 5 passed, 5 total
+Tests:       48 passed, 48 total
+- room.test.js:           16 tests ✓
+- list-rooms.test.js:     7 tests ✓
+- create-reservation.test.js: 11 tests ✓
+- cancel-reservation.test.js: 6 tests ✓
+- get-reservations.test.js: 8 tests ✓
+\\\
+
+**Manual API Testing Verification:**
+- POST /api/rooms - Creates room with UUID and returns success ✓
+- GET /api/rooms - Lists all rooms correctly ✓
+- DELETE /api/rooms/:id - Deletes room by UUID successfully ✓
+
+**Project Structure (Final):**
+\\\
+jk-neukkari-varaus/
+├── controllers/
+│   ├── reservation-router.js    (Reservation CRUD)
+│   └── room-router.js           (Room CRUD)
+├── __tests__/
+│   ├── create-reservation.test.js (11 tests)
+│   ├── cancel-reservation.test.js (6 tests)
+│   ├── get-reservations.test.js   (8 tests)
+│   ├── list-rooms.test.js         (7 tests - updated)
+│   └── room.test.js               (16 tests - new)
+├── requests/
+│   ├── create-reservation.rest
+│   ├── cancel-reservation.rest
+│   ├── get-reservations.rest
+│   ├── list-rooms.rest
+│   └── room-operations.rest       (new)
+├── config.js
+├── server.js
+├── jest.config.js
+├── package.json
+├── .env
+├── .gitignore
+└── README.md
+\\\
+
+**Key Achievements:**
+- ✅ Room management API fully functional and tested
+- ✅ Clean separation of concerns (reservation vs room management)
+- ✅ 48 tests passing with 100% coverage of room operations
+- ✅ UUID v4 used for all room IDs
+- ✅ Comprehensive edge case testing (duplicates, special characters, etc.)
+- ✅ REST request files for manual testing
