@@ -4,6 +4,8 @@ const createRoomRouter = require('./controllers/room-router');
 const config = require('./config');
 
 const tokenExtractor = require ( './middlewares/tokenExtractor' );
+
+const loginRouter = require('./controllers/login-router')
 const usersRouter = require( './controllers/user-router' );
 
 const app = express();
@@ -21,6 +23,7 @@ let users = [];
 app.disable('x-powered-by')
 
 // Use the routers
+app.use( '/api/login', loginRouter );
 app.use('/api/reservations', createReservationRouter(reservations, rooms));
 app.use('/api/rooms', createRoomRouter(rooms));
 app.use('/api/users', usersRouter(users));
