@@ -1,0 +1,4 @@
+## Request to delete a user by ID
+DELETE  http://localhost:3000/api/users/11da0825-67e8-4799-8789-b5fd6a601c8a
+Content-Type: application/json
+

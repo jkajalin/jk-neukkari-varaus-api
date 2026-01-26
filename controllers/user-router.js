@@ -7,15 +7,15 @@ function createUserRouter(users) {
     const router = express.Router();
 
     // Create a new user
-    router.post('/', async (req, res) => {
-        const { userName, name, password } = req.body;
+    router.post('/', async ( request, response ) => {
+        const { userName, name, password } = request.body;
         // Validate required fields
         if (!userName || !name || !password) {
             return res.status(400).json({ message: 'User name and name are required.' });
         }
 
         // allow to create user only if no users exist, or request is authenticated
-        if (!request.token ) {
+        if ( !request.token ) {
           
           //console.log( users )
 
@@ -33,7 +33,7 @@ function createUserRouter(users) {
         // Check if user already exists
         const existingUser = users.find(user => user.userName === userName);
         if (existingUser) {
-            return res.status(409).json({ message: 'User already exists.' });
+            return response.status(409).json({ message: 'User already exists.' });
         }
 
         if( password.length < 19 ){
@@ -46,7 +46,7 @@ function createUserRouter(users) {
         // Create new user
         const newUser = { userId: uuidv4(), userName, name, passwordHash };
         users.push(newUser);
-        res.status(201).json({ message: 'User created successfully.', user: newUser });
+        response.status(201).json({ message: 'User created successfully.', user: newUser });
 
     })
 
