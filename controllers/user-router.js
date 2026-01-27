@@ -11,7 +11,7 @@ function createUserRouter(users) {
         const { userName, name, password } = request.body;
         // Validate required fields
         if (!userName || !name || !password) {
-            return res.status(400).json({ message: 'User name and name are required.' });
+            return response.status(400).json({ message: 'User name and name are required.' });
         }
 
         // allow to create user only if no users exist, or request is authenticated

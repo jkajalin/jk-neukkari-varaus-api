@@ -1,36 +1,57 @@
+const express = require('express')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const loginRouter = require('express').Router()
+//const router = require('express').Router()
 
-loginRouter.post('/', async (request, response) => {
-  const { username, password } = request.body
 
-  const user = await User.findOne({ username })
-  const passwordCorrect = user === null
-    ? false
-    : await bcrypt.compare( password, user.passwordHash)
+function createLoginRouter( Users ) {
 
-  if (!(user && passwordCorrect)) {
-    return response.status(401).json({
-      error: 'invalid username or password'
-    })
-  }
+  const loginRouter = express.Router()
 
-  const userForToken = {
-    username: user.username,
-    id: user.id, // id: user._id,
-  }
+  loginRouter.post('/', async (request, response) => {
+    const { username, password } = request.body
 
-  // token expires in 60*60 seconds, that is, in one hour // multiplied by 12 for 12 hours
-  const token = jwt.sign(
-    userForToken,
-    process.env.SECRET,
-    { expiresIn: 60*60*12 } // 12 hours
-  )
+    if ( !Users &&  Users.length === 0) {
+            return response.status(401).json( { error: 'users Array empty' } )
+    }
+    // debug, is Users array passed correctly?
+    console.log( 'Users in login-router: ', Users )
+    
+    const users = Users; // update users array passed to the router
+    const user = users.find(user => user.userName === username );
 
-  response
-    .status(200)
-    .send( { token, username: user.username, name: user.name } ) // token already contains username
-})
+    // debug, is password hash working correctly?
+    console.log( 'passwordHash: ', user.passwordHash)
 
-module.exports = loginRouter
+    const passwordCorrect = user === null
+      ? false
+      : await bcrypt.compare(password, user.passwordHash)
+
+    if (!(user && passwordCorrect)) {
+      return response.status(401).json({
+        error: 'invalid username or password'
+      })
+    }
+
+    const userForToken = {
+      username: user.userName,
+      id: user.id, // id: user._id,
+    }
+
+    // token expires in 60*60 seconds, that is, in one hour // multiplied by 12 for 12 hours
+    const token = jwt.sign(
+      userForToken,
+      process.env.SECRET,
+      { expiresIn: 60 * 60 * 12 } // 12 hours
+    )
+
+    response
+      .status(200)
+      .send({ token, username: user.userName, name: user.name }) // token already contains username
+  })
+
+  return loginRouter;
+
+}
+
+module.exports = createLoginRouter
