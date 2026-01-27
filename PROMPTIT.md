@@ -35,6 +35,18 @@ Why you would like to use older express version?
 Note that I used pnpm to install express.
 
 ### Response 2
+
+Optimizing tool selection...
+
+Summarized conversation history
+---
+
+## Conversation 3
+
+### Prompt 3: Clarification on Express Version
+Please explain why would you like to use older express version?
+
+### Response 3
 Using an older version of Express.js might be considered for several reasons:
 
 1. **Compatibility**: If the project relies on other libraries or frameworks that are not compatible with the latest version of Express, using an older version can ensure that everything works together without issues.
@@ -51,23 +63,13 @@ If you need to install a specific version of Express.js using `pnpm`, please let
 
 ---
 
-## Conversation 3
-
-### Prompt 3: Clarification on Express Version
-Please explain why would you like to use older express version?
-
-### Response 3
-[Repeated the explanation from Response 2]
-
----
-
 ## Conversation 4
 
 ### Prompt 4: Save Prompts
 create and save all prompts to PROMPTIT.md file
 
 ### Response 4
-[Created PROMPTIT.md with all prompts]
+Sorry, your request failed. Please try again.
 
 ---
 
@@ -77,7 +79,10 @@ create and save all prompts to PROMPTIT.md file
 Try Again
 
 ### Response 5
-[Re-created PROMPTIT.md with all prompts]
+Enable Claude Haiku 4.5 for all clients
+
+
+[Created PROMPTIT.md with all prompts]
 
 ---
 
@@ -85,6 +90,41 @@ Try Again
 
 ### Prompt 6: Save Conversation History
 Save all conversation history in PROMPTIT.md, including your responses
+
+Response:
+Done. I've updated PROMPTIT.md with the complete conversation history including all prompts and responses.
+
+---
+
+Prompt:
+Keep updating it when conversation goes on
+
+Response:
+Understood. I'll keep updating PROMPTIT.md with any new prompts and responses as our conversation continues.
+
+---
+
+Prompt:
+"could you move route requests to separate router module file reservation-router.js"
+
+Responses:
+"Now I'll create the new reservation-router.js file with the routes and update server.js to use it:"
+
+"Done. I've created reservation-router.js with all the route handlers and updated server.js to use the new router module. The routes are now organized separately and imported using express.Router()."
+
+---
+Prompt:
+"Could you add dotenv to project and move PORT configuration to config.js file"
+
+Response:
+"Done. I've:
+
+Installed dotenv using pnpm
+Created config.js that loads environment variables with dotenv
+Created .env file with the PORT configuration
+Updated server.js to use the config module
+The PORT is now configurable through the .env file."
+
 
 ---
 
@@ -288,6 +328,15 @@ Added new endpoint to list all available rooms:
 
 ---
 
+Prompt:
+"could you move reservation router to controllers folder, and refactor code correspondingly"
+
+Response:
+"Now let me read the reservation-router.js to move it:"
+
+
+----------
+
 ## Conversation 12
 
 ### Prompt 12: Update IDs to use UUID v4
@@ -467,7 +516,31 @@ jk-neukkari-varaus/
 
 ---
 
+
+Prompt:
+Could you now update conversations history ( prompts and responses ), to PROMPTIT.md. Continue to do so as we go on.
+
+Response:
+
+The user wants me to update the PROMPTIT.md file with Conversation 17 that just happened - where I added the room update/edit endpoint. I should add this to the end of the file.
+
+Let me append the new conversation to PROMPTIT.md with details about:
+
+The PUT endpoint added to room-router.js
+The 9 new tests added to room.test.js
+The updated room-operations.rest file
+Test results showing 57 tests passing
+I should use Add-Content again since the file already exists and I need to append to it.
+
+-----
+
+---
+
 ## Conversation 17
+
+Exact Prompt:
+"Could you create room-router.js and move room routes to it. Also make create room and delete room routes."
+
 
 ### Prompt 17: Add room edit endpoint
 Could you add route to edit room ( name ).
@@ -731,3 +804,11 @@ The reservation system now follows a **referential integrity pattern**:
 This provides stronger data consistency and prevents orphaned reservations if rooms are modified or deleted.
 
 ---
+
+27012026
+- git restore komennolla paluu viimeisimpään maanantai päivän committiin. Syystä: Iltapäivän sekoilut.
+- PROMPTIT.md täydennys omilla tarkemmilla muistiinpanoilla, propteista ja vastauksista maanantain viimeiseen committiin saakka.
+
+----
+
+
