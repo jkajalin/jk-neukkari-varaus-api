@@ -14,14 +14,14 @@ function createLoginRouter( Users ) {
     if ( !Users &&  Users.length === 0) {
             return response.status(401).json( { error: 'users Array empty' } )
     }
-    // debug, is Users array passed correctly?
-    console.log( 'Users in login-router: ', Users )
     
-    const users = Users; // update users array passed to the router
+    //console.log( 'Users in login-router: ', Users )
+    
+    const users = Users; // get users array from parameter
     const user = users.find(user => user.userName === username );
 
     // debug, is password hash working correctly?
-    console.log( 'passwordHash: ', user.passwordHash)
+    //console.log( 'login router - passwordHash: ', user.passwordHash)
 
     const passwordCorrect = user === null
       ? false
@@ -35,8 +35,9 @@ function createLoginRouter( Users ) {
 
     const userForToken = {
       username: user.userName,
-      id: user.id, // id: user._id,
+      id: user.userId, // fixed to userId used in "model"
     }
+    //console.log( 'login router - userForToken: ', userForToken )
 
     // token expires in 60*60 seconds, that is, in one hour // multiplied by 12 for 12 hours
     const token = jwt.sign(

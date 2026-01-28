@@ -6,3 +6,7 @@ const userModel = {
   name: 'Sample User', // required
   passwordHash: 'hashedPassword123', // should also be hidden like in mongoose schema, in real implementation
 }
+
+let users = [];
+
+module.exports = { users };

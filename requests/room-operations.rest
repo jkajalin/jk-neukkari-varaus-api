@@ -1,7 +1,7 @@
 ### Create Room
 POST http://localhost:3000/api/rooms
 Content-Type: application/json
-Authorization: bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzY5NTMzMDQ4LCJleHAiOjE3Njk1NzYyNDh9.Y5d1v2yA3K-GyIM2d3FdfIQiWA8T3C7Bmfbs2tfmX_M"
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI5NzI1YWQ2Yy03MmMzLTQzNDktYjBmNS04MjAzZGU0NDk3M2MiLCJpYXQiOjE3Njk1OTkwMzIsImV4cCI6MTc2OTY0MjIzMn0.BnUfMdmSUd0T4yEiwofDF3pK95jjFgCkNf4aq8n0i7Q
 
 {
   "name": "Room A"
@@ -12,6 +12,8 @@ Authorization: bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFk
 ### Create Another Room
 POST http://localhost:3000/api/rooms
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI5NzI1YWQ2Yy03MmMzLTQzNDktYjBmNS04MjAzZGU0NDk3M2MiLCJpYXQiOjE3Njk1OTkwMzIsImV4cCI6MTc2OTY0MjIzMn0.BnUfMdmSUd0T4yEiwofDF3pK95jjFgCkNf4aq8n0i7Q
+
 
 {
   "name": "Conference Hall"
@@ -35,6 +37,7 @@ Content-Type: application/json
 ###
 
 ### Delete Room (Replace ID with actual UUID)
-DELETE http://localhost:3000/api/rooms/ddb8af7b-ab04-46b1-83a3-c2ca209ed6bc
+DELETE http://localhost:3000/api/rooms/076fb138-9e70-4fe3-8291-cf8e1d17db24
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI5NzI1YWQ2Yy03MmMzLTQzNDktYjBmNS04MjAzZGU0NDk3M2MiLCJpYXQiOjE3Njk1OTkwMzIsImV4cCI6MTc2OTY0MjIzMn0.BnUfMdmSUd0T4yEiwofDF3pK95jjFgCkNf4aq8n0i7Q
 
 ###

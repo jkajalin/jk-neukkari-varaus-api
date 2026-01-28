@@ -1,14 +1,25 @@
 const jwt = require('jsonwebtoken')
+// Get users array from imported "model" data
+const { users } = require('../models/user-model')
 
+// Middleware to extract user
 const userExtractor = (request, response, next) => {
 
-   const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  //console.log( 'userExtractor - request.token: ', request.token ) // debug
+
+  // Verify and decode the token
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+  //console.log( 'userExtractor - decodedToken: ', decodedToken ) // debug
 
   if (!request.token || !decodedToken.id) {
     return response.status(401).json({ error: 'token missing or invalid' })
   }
 
+  // Attach user object to request
   request.user = users.find(user => user.userId === decodedToken.id)
+  
+  //console.log( 'userExtractor - request.user: ', request.user ) // debug
 
   next()
 

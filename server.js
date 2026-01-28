@@ -21,7 +21,8 @@ app.use(tokenExtractor);
 // In-memory data stores
 let reservations = [];
 let rooms = [];
-let users = [];
+//let users = [];
+const { users } = require('./models/user-model');
 
 // Disable 'X-Powered-By' header for security
 app.disable('x-powered-by')
