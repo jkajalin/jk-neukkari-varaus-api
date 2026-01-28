@@ -1,5 +1,5 @@
 ## Request to delete a user by ID
-DELETE  http://localhost:3000/api/users/0179c836-63e2-4370-8732-f5e17875838a
+DELETE  http://localhost:3000/api/users/7c898350-1339-4060-b39f-34e599ba8932
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzY5NTMyMjk5LCJleHAiOjE3Njk1NzU0OTl9.NuZdUrzAZy-N5NGq-7N1NAy46u67KnuYcVc4W7x_FI8
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI3Yzg5ODM1MC0xMzM5LTQwNjAtYjM5Zi0zNGU1OTliYTg5MzIiLCJpYXQiOjE3Njk2MTA0OTEsImV4cCI6MTc2OTY1MzY5MX0.XtER7lZ10_0of07k3e-XaaT3_NdFP0hcZ-movMMe8A0
 

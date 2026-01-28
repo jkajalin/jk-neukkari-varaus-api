@@ -17,8 +17,13 @@ const userExtractor = (request, response, next) => {
   }
 
   // Attach user object to request
-  request.user = users.find(user => user.userId === decodedToken.id)
+  if( !users || users.length === 0 ){
+    return response.status(401).json( { error: 'No users in the system' } )
+  }else{
+    request.user = users.find(user => user.userId === decodedToken.id)
+  }
   
+
   //console.log( 'userExtractor - request.user: ', request.user ) // debug
 
   next()

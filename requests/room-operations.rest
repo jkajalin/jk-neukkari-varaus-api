@@ -1,7 +1,7 @@
 ### Create Room
 POST http://localhost:3000/api/rooms
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI1MDhkN2Y3ZC1iZWMzLTQ0YWUtOTI2Mi01NmNhYjQzMzY4ZjMiLCJpYXQiOjE3Njk2MDg4MTcsImV4cCI6MTc2OTY1MjAxN30.vwG-MauxttvOEJ2XThNxhJLZU9MO6oOaoOZD0DuG2wc
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI3Yzg5ODM1MC0xMzM5LTQwNjAtYjM5Zi0zNGU1OTliYTg5MzIiLCJpYXQiOjE3Njk2MTA0OTEsImV4cCI6MTc2OTY1MzY5MX0.XtER7lZ10_0of07k3e-XaaT3_NdFP0hcZ-movMMe8A0
 
 {
   "name": "Room A"

@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { users } = require('../models/user-model');
+const userExtractor = require( '../middlewares/userExtractor' )
 
 function createUserRouter() {
     const router = express.Router();
@@ -51,7 +52,7 @@ function createUserRouter() {
 
     })
 
-    router.delete('/:id', (req, res) => {
+    router.delete('/:id', userExtractor, async (req, res) => {
         const { id } = req.params;
         
         if (!id) {
