@@ -2,8 +2,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
+const { users } = require('../models/user-model');
 
-function createUserRouter(users) {
+function createUserRouter() {
     const router = express.Router();
 
     // Create a new user

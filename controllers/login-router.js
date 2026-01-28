@@ -2,22 +2,23 @@ const express = require('express')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 //const router = require('express').Router()
+const { users } = require('../models/user-model');
 
 
-function createLoginRouter( Users ) {
+function createLoginRouter() {
 
   const loginRouter = express.Router()
 
   loginRouter.post('/', async (request, response) => {
     const { username, password } = request.body
 
-    if ( !Users &&  Users.length === 0) {
+    if ( !users &&  users.length === 0) {
             return response.status(401).json( { error: 'users Array empty' } )
     }
     
     //console.log( 'Users in login-router: ', Users )
     
-    const users = Users; // get users array from parameter
+    //const users = Users; // get users array from parameter
     const user = users.find(user => user.userName === username );
 
     // debug, is password hash working correctly?

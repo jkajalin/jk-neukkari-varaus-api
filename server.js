@@ -22,16 +22,16 @@ app.use(tokenExtractor);
 let reservations = [];
 let rooms = [];
 //let users = [];
-const { users } = require('./models/user-model');
+//const { users } = require('./models/user-model');
 
 // Disable 'X-Powered-By' header for security
 app.disable('x-powered-by')
 
 // Use the routers
-app.use('/api/login', createLoginRouter( users ));
+app.use('/api/login', createLoginRouter());
 app.use('/api/reservations', createReservationRouter(reservations, rooms));
 app.use('/api/rooms', createRoomRouter(rooms));
-app.use('/api/users', usersRouter(users));
+app.use('/api/users', usersRouter());
 
 app.use( unknownEndpoint )
 // tämä tulee kaikkien muiden middlewarejen rekisteröinnin jälkeen!
