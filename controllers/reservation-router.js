@@ -1,7 +1,8 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
+const { reservations, rooms } = require('../models/data-stores');
 
-function createReservationRouter(reservations, rooms = []) {
+function createReservationRouter() {
     const router = express.Router();
 
     // Create a reservation

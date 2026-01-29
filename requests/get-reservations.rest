@@ -1,7 +1,7 @@
 ### NOTE: Replace the roomId values below with actual room IDs returned from POST /api/rooms
 
 ### Get all reservations for a room
-GET http://localhost:3000/api/reservations/3b4cedb0-2c96-4c6b-8f2f-009287b3c22a
+GET http://localhost:3000/api/reservations/ac3d4441-8bd5-4de2-a985-6cc6ee54e258
 
 ### Get reservations for another room
 GET http://localhost:3000/api/reservations/550e8400-e29b-41d4-a716-446655440001

@@ -6,7 +6,7 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "roomId": "3b4cedb0-2c96-4c6b-8f2f-009287b3c22a",
+  "roomId": "27118d3b-01f8-41f2-ae1e-391e6df45abb",
   "startTime": "2026-02-22T09:00:00Z",
   "endTime": "2026-02-22T10:00:00Z"
 }
@@ -16,7 +16,7 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "roomId": "3b4cedb0-2c96-4c6b-8f2f-009287b3c22a",
+  "roomId": "27118d3b-01f8-41f2-ae1e-391e6df45abb",
   "startTime": "2026-02-22T11:00:00Z",
   "endTime": "2026-02-22T12:00:00Z"
 }
@@ -26,7 +26,7 @@ POST http://localhost:3000/api/reservations
 Content-Type: application/json
 
 {
-  "roomId": "4b77dfe8-cba6-4ea3-809c-e548ae5329bb",
+  "roomId": "ac3d4441-8bd5-4de2-a985-6cc6ee54e258",
   "startTime": "2026-02-22T09:00:00Z",
   "endTime": "2026-02-22T10:00:00Z"
 }

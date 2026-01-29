@@ -18,19 +18,13 @@ app.use(express.json());
 app.use(requestLogger);
 app.use(tokenExtractor);
 
-// In-memory data stores
-let reservations = [];
-let rooms = [];
-//let users = [];
-//const { users } = require('./models/user-model');
-
 // Disable 'X-Powered-By' header for security
 app.disable('x-powered-by')
 
 // Use the routers
 app.use('/api/login', createLoginRouter());
-app.use('/api/reservations', createReservationRouter(reservations, rooms));
-app.use('/api/rooms', createRoomRouter(rooms));
+app.use('/api/reservations', createReservationRouter());
+app.use('/api/rooms', createRoomRouter());
 app.use('/api/users', usersRouter());
 
 app.use( unknownEndpoint )

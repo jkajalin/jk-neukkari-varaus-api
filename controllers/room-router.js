@@ -1,9 +1,9 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-
+const rooms = require('../models/data-stores').rooms;
 const userExtractor = require( '../middlewares/userExtractor' )
 
-function createRoomRouter(rooms) {
+function createRoomRouter() {
     const router = express.Router();
 
     // Create a new room
