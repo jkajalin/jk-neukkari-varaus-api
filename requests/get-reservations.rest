@@ -1,13 +1,13 @@
 ### NOTE: Replace the roomId values below with actual room IDs returned from POST /api/rooms
 
 ### Get all reservations for a room
-GET http://localhost:3000/api/reservations/ac3d4441-8bd5-4de2-a985-6cc6ee54e258
+GET http://localhost:3001/api/reservations/ac3d4441-8bd5-4de2-a985-6cc6ee54e258
 
 ### Get reservations for another room
-GET http://localhost:3000/api/reservations/550e8400-e29b-41d4-a716-446655440001
+GET http://localhost:3001/api/reservations/550e8400-e29b-41d4-a716-446655440001
 
 ### Get reservations for a room with no bookings
-GET http://localhost:3000/api/reservations/550e8400-e29b-41d4-a716-446655440099
+GET http://localhost:3001/api/reservations/550e8400-e29b-41d4-a716-446655440099
 
 ### Get reservations for a non-existent room (will return empty array)
-GET http://localhost:3000/api/reservations/00000000-0000-0000-0000-000000000000
+GET http://localhost:3001/api/reservations/00000000-0000-0000-0000-000000000000

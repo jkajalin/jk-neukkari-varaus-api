@@ -811,4 +811,21 @@ This provides stronger data consistency and prevents orphaned reservations if ro
 
 ----
 
+29012026
 
+Prompt:
+"Could you update all requests in request folder to use port 3001."
+
+Response:
+"
+Done! I've updated all request files in the requests folder to use port 3001 instead of 3000
+
+cancel-reservation.rest ✓
+create-first-user.rest ✓
+create-reservation.rest ✓
+get-reservations.rest ✓
+list-rooms.rest ✓
+login.rest ✓
+room-operations.rest ✓
+user-operations.rest ✓
+"

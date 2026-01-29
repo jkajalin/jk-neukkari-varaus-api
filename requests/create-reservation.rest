@@ -2,17 +2,17 @@
 ### Replace the roomId values below with actual room IDs returned from POST /api/rooms
 
 ### Create a new reservation
-POST http://localhost:3000/api/reservations
+POST http://localhost:3001/api/reservations
 Content-Type: application/json
 
 {
-  "roomId": "27118d3b-01f8-41f2-ae1e-391e6df45abb",
+  "roomId": "6244a893-6403-4458-a59e-6379af74d0e0",
   "startTime": "2026-02-22T09:00:00Z",
   "endTime": "2026-02-22T10:00:00Z"
 }
 
 ### Create another reservation in the same room (different time)
-POST http://localhost:3000/api/reservations
+POST http://localhost:3001/api/reservations
 Content-Type: application/json
 
 {
@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 ### Create a reservation in a different room
-POST http://localhost:3000/api/reservations
+POST http://localhost:3001/api/reservations
 Content-Type: application/json
 
 {
@@ -32,7 +32,7 @@ Content-Type: application/json
 }
 
 ### Try to create overlapping reservation (should fail)
-POST http://localhost:3000/api/reservations
+POST http://localhost:3001/api/reservations
 Content-Type: application/json
 
 {
@@ -42,7 +42,7 @@ Content-Type: application/json
 }
 
 ### Try to create reservation with missing fields (should fail)
-POST http://localhost:3000/api/reservations
+POST http://localhost:3001/api/reservations
 Content-Type: application/json
 
 {

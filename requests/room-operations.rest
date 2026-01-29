@@ -1,7 +1,7 @@
 ### Create Room
-POST http://localhost:3000/api/rooms
+POST http://localhost:3001/api/rooms
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiJlNTM5OTcxMS1jNzE5LTRiMTctOTAzZi0xMjRjYTRhOGFhNTkiLCJpYXQiOjE3Njk2OTYwOTQsImV4cCI6MTc2OTczOTI5NH0.HZPIJxKkUo0QBFi_iNOcLY2vKurt2tD0Wzx9mhEEB8w
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI3Yjk5ZDRhZS1hNjA2LTQxNDYtOTE5NC0xY2M0ZmIxNGQ5ZTkiLCJpYXQiOjE3Njk2OTk2NzAsImV4cCI6MTc2OTc0Mjg3MH0._3syWocf8yom7XQ9RceqBWeWvQMQwFnVV3HcCZPIX-0
 
 {
   "name": "Room A"
@@ -10,10 +10,9 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkb
 ###
 
 ### Create Another Room
-POST http://localhost:3000/api/rooms
+POST http://localhost:3001/api/rooms
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiJlNTM5OTcxMS1jNzE5LTRiMTctOTAzZi0xMjRjYTRhOGFhNTkiLCJpYXQiOjE3Njk2OTYwOTQsImV4cCI6MTc2OTczOTI5NH0.HZPIJxKkUo0QBFi_iNOcLY2vKurt2tD0Wzx9mhEEB8w
-
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI3Yjk5ZDRhZS1hNjA2LTQxNDYtOTE5NC0xY2M0ZmIxNGQ5ZTkiLCJpYXQiOjE3Njk2OTk2NzAsImV4cCI6MTc2OTc0Mjg3MH0._3syWocf8yom7XQ9RceqBWeWvQMQwFnVV3HcCZPIX-0
 
 {
   "name": "Conference Hall"
@@ -22,12 +21,12 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkb
 ###
 
 ### List All Rooms
-GET http://localhost:3000/api/rooms
+GET http://localhost:3001/api/rooms
 
 ###
 
 ### Update Room (Replace ID with actual UUID)
-PUT http://localhost:3000/api/rooms/b3c4c561-2fdd-4539-b012-023bff0eec54
+PUT http://localhost:3001/api/rooms/b3c4c561-2fdd-4539-b012-023bff0eec54
 Content-Type: application/json
 
 {
@@ -37,7 +36,7 @@ Content-Type: application/json
 ###
 
 ### Delete Room (Replace ID with actual UUID)
-DELETE http://localhost:3000/api/rooms/076fb138-9e70-4fe3-8291-cf8e1d17db24
+DELETE http://localhost:3001/api/rooms/076fb138-9e70-4fe3-8291-cf8e1d17db24
 Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI5NzI1YWQ2Yy03MmMzLTQzNDktYjBmNS04MjAzZGU0NDk3M2MiLCJpYXQiOjE3Njk1OTkwMzIsImV4cCI6MTc2OTY0MjIzMn0.BnUfMdmSUd0T4yEiwofDF3pK95jjFgCkNf4aq8n0i7Q
 
 ###
