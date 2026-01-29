@@ -25,6 +25,12 @@ app.use('/api/reservations', createReservationRouter());
 app.use('/api/rooms', createRoomRouter());
 app.use('/api/users', usersRouter());
 
+if ( process.env.NODE_ENV === 'test' ) {
+
+  const testingRouter = require('./controllers/test-router')
+  app.use('/api/testing', testingRouter)
+}
+
 app.use( unknownEndpoint )
 // tämä tulee kaikkien muiden middlewarejen rekisteröinnin jälkeen!
 app.use( errorHandler )
