@@ -1,5 +1,6 @@
 // __tests__/test_helper.js
 
+// mock data for testing
 const initialUsers = [
   {
     userName: 'admin',

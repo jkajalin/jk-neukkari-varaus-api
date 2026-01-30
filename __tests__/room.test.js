@@ -1,23 +1,38 @@
-const request = require('supertest');
-const express = require('express');
-const createRoomRouter = require('../controllers/room-router');
+const supertest = require('supertest');
+const app = require('../app');
+const { users } = require('../models/user-model');
+const { initialUsers } = require('./test_helper');
+const { rooms, reservations } = require('../models/data-stores');
 
-describe('Room Router - POST /api/rooms', () => {
-    let app;
-    let rooms;
+const api = supertest(app);
 
-    beforeEach(() => {
-        app = express();
-        app.use(express.json());
-        rooms = [];
-        app.use('/api/rooms', createRoomRouter(rooms));
+describe('Room API - POST /api/rooms', () => {
+    let token;
+
+    beforeEach(async () => {
+        // Clear data stores
+        users.length = 0;
+        rooms.length = 0;
+        reservations.length = 0;
+
+        // Create initial user
+        await api
+            .post('/api/users')
+            .send(initialUsers[0]);
+
+        // Login to get token
+        const loginRes = await api
+            .post('/api/login')
+            .send({ username: initialUsers[0].userName, password: initialUsers[0].password });
+        token = loginRes.body.token;
     });
 
     // Valid room creation
     test('Should create a room successfully', async () => {
-        const response = await request(app)
+        const response = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(201);
         expect(response.body.message).toBe('Room created successfully.');
@@ -29,9 +44,10 @@ describe('Room Router - POST /api/rooms', () => {
 
     // Edge case: Missing room name
     test('Should return error when room name is missing', async () => {
-        const response = await request(app)
+        const response = await api
             .post('/api/rooms')
-            .send({});
+            .send({})
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(400);
         expect(response.body.message).toContain('required');
@@ -40,14 +56,16 @@ describe('Room Router - POST /api/rooms', () => {
     // Edge case: Duplicate room name
     test('Should return error when room name already exists', async () => {
         // Create first room
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         // Try to create duplicate
-        const response = await request(app)
+        const response = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(409);
         expect(response.body.message).toContain('already exists');
@@ -56,17 +74,20 @@ describe('Room Router - POST /api/rooms', () => {
 
     // Multiple rooms creation
     test('Should create multiple rooms with different names', async () => {
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room B' });
+            .send({ name: 'Room B' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const response = await request(app)
+        const response = await api
             .post('/api/rooms')
-            .send({ name: 'Conference Hall' });
+            .send({ name: 'Conference Hall' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(201);
         expect(rooms.length).toBe(3);
@@ -74,49 +95,64 @@ describe('Room Router - POST /api/rooms', () => {
 
     // UUID generation
     test('Should generate unique UUID for each room', async () => {
-        const res1 = await request(app)
+        const res1 = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const res2 = await request(app)
+        const res2 = await api
             .post('/api/rooms')
-            .send({ name: 'Room B' });
+            .send({ name: 'Room B' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(res1.body.room.id).not.toBe(res2.body.room.id);
     });
 
     // Room name with special characters
     test('Should allow room names with special characters', async () => {
-        const response = await request(app)
+        const response = await api
             .post('/api/rooms')
-            .send({ name: 'Meeting Room - Floor 2 (Main)' });
+            .send({ name: 'Meeting Room - Floor 2 (Main)' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(201);
         expect(response.body.room.name).toBe('Meeting Room - Floor 2 (Main)');
     });
 });
 
-describe('Room Router - DELETE /api/rooms/:id', () => {
-    let app;
-    let rooms;
+describe('Room API - DELETE /api/rooms/:id', () => {
+    let token;
 
-    beforeEach(() => {
-        app = express();
-        app.use(express.json());
-        rooms = [];
-        app.use('/api/rooms', createRoomRouter(rooms));
+    beforeEach(async () => {
+        // Clear data stores
+        users.length = 0;
+        rooms.length = 0;
+        reservations.length = 0;
+
+        // Create initial user
+        await api
+            .post('/api/users')
+            .send(initialUsers[0]);
+
+        // Login to get token
+        const loginRes = await api
+            .post('/api/login')
+            .send({ username: initialUsers[0].userName, password: initialUsers[0].password });
+        token = loginRes.body.token;
     });
 
     // Valid room deletion
     test('Should delete a room successfully', async () => {
-        const createRes = await request(app)
+        const createRes = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId = createRes.body.room.id;
 
-        const deleteRes = await request(app)
-            .delete(`/api/rooms/${roomId}`);
+        const deleteRes = await api
+            .delete(`/api/rooms/${roomId}`)
+            .set({ Authorization: `bearer ${token}` });
 
         expect(deleteRes.status).toBe(200);
         expect(deleteRes.body.message).toBe('Room deleted successfully.');
@@ -125,8 +161,9 @@ describe('Room Router - DELETE /api/rooms/:id', () => {
 
     // Edge case: Non-existent room ID
     test('Should return error when room ID does not exist', async () => {
-        const response = await request(app)
-            .delete('/api/rooms/nonexistent-id');
+        const response = await api
+            .delete('/api/rooms/nonexistent-id')
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('Room not found.');
@@ -134,18 +171,21 @@ describe('Room Router - DELETE /api/rooms/:id', () => {
 
     // Multiple deletions
     test('Should delete specific room when multiple exist', async () => {
-        const res1 = await request(app)
+        const res1 = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const res2 = await request(app)
+        const res2 = await api
             .post('/api/rooms')
-            .send({ name: 'Room B' });
+            .send({ name: 'Room B' })
+            .set({ Authorization: `bearer ${token}` });
 
         const id1 = res1.body.room.id;
 
-        const deleteRes = await request(app)
-            .delete(`/api/rooms/${id1}`);
+        const deleteRes = await api
+            .delete(`/api/rooms/${id1}`)
+            .set({ Authorization: `bearer ${token}` });
 
         expect(deleteRes.status).toBe(200);
         expect(rooms.length).toBe(1);
@@ -154,38 +194,52 @@ describe('Room Router - DELETE /api/rooms/:id', () => {
 
     // Edge case: Duplicate deletion
     test('Should return error when trying to delete already deleted room', async () => {
-        const createRes = await request(app)
+        const createRes = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId = createRes.body.room.id;
 
         // First deletion
-        await request(app).delete(`/api/rooms/${roomId}`);
+        await api
+            .delete(`/api/rooms/${roomId}`)
+            .set({ Authorization: `bearer ${token}` });
 
         // Second deletion (should fail)
-        const response = await request(app)
-            .delete(`/api/rooms/${roomId}`);
+        const response = await api
+            .delete(`/api/rooms/${roomId}`)
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('Room not found.');
     });
 });
 
-describe('Room Router - GET /api/rooms', () => {
-    let app;
-    let rooms;
+describe('Room API - GET /api/rooms', () => {
+    let token;
 
-    beforeEach(() => {
-        app = express();
-        app.use(express.json());
-        rooms = [];
-        app.use('/api/rooms', createRoomRouter(rooms));
+    beforeEach(async () => {
+        // Clear data stores
+        users.length = 0;
+        rooms.length = 0;
+        reservations.length = 0;
+
+        // Create initial user
+        await api
+            .post('/api/users')
+            .send(initialUsers[0]);
+
+        // Login to get token
+        const loginRes = await api
+            .post('/api/login')
+            .send({ username: initialUsers[0].userName, password: initialUsers[0].password });
+        token = loginRes.body.token;
     });
 
     // Get empty list
     test('Should return empty array when no rooms exist', async () => {
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -195,11 +249,12 @@ describe('Room Router - GET /api/rooms', () => {
 
     // Get single room
     test('Should return single room', async () => {
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -210,19 +265,22 @@ describe('Room Router - GET /api/rooms', () => {
 
     // Get multiple rooms
     test('Should return multiple rooms', async () => {
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room B' });
+            .send({ name: 'Room B' })
+            .set({ Authorization: `bearer ${token}` });
 
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Conference Hall' });
+            .send({ name: 'Conference Hall' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -231,11 +289,12 @@ describe('Room Router - GET /api/rooms', () => {
 
     // Verify room structure
     test('Should return rooms with correct structure', async () => {
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.body[0]).toHaveProperty('id');
@@ -246,18 +305,22 @@ describe('Room Router - GET /api/rooms', () => {
 
     // Get after deletion
     test('Should reflect deleted rooms in list', async () => {
-        const res1 = await request(app)
+        const res1 = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room B' });
+            .send({ name: 'Room B' })
+            .set({ Authorization: `bearer ${token}` });
 
         const id = res1.body.room.id;
-        await request(app).delete(`/api/rooms/${id}`);
+        await api
+            .delete(`/api/rooms/${id}`)
+            .set({ Authorization: `bearer ${token}` });
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -267,11 +330,12 @@ describe('Room Router - GET /api/rooms', () => {
 
     // JSON format verification
     test('Should return proper JSON format', async () => {
-        await request(app)
+        await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -280,28 +344,40 @@ describe('Room Router - GET /api/rooms', () => {
     });
 });
 
-describe('Room Router - PUT /api/rooms/:id', () => {
-    let app;
-    let rooms;
+describe('Room API - PUT /api/rooms/:id', () => {
+    let token;
 
-    beforeEach(() => {
-        app = express();
-        app.use(express.json());
-        rooms = [];
-        app.use('/api/rooms', createRoomRouter(rooms));
+    beforeEach(async () => {
+        // Clear data stores
+        users.length = 0;
+        rooms.length = 0;
+        reservations.length = 0;
+
+        // Create initial user
+        await api
+            .post('/api/users')
+            .send(initialUsers[0]);
+
+        // Login to get token
+        const loginRes = await api
+            .post('/api/login')
+            .send({ username: initialUsers[0].userName, password: initialUsers[0].password });
+        token = loginRes.body.token;
     });
 
     // Valid room update
     test('Should update room name successfully', async () => {
-        const createRes = await request(app)
+        const createRes = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId = createRes.body.room.id;
 
-        const updateRes = await request(app)
+        const updateRes = await api
             .put(`/api/rooms/${roomId}`)
-            .send({ name: 'Updated Room A' });
+            .send({ name: 'Updated Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(updateRes.status).toBe(200);
         expect(updateRes.body.message).toBe('Room updated successfully.');
@@ -312,9 +388,10 @@ describe('Room Router - PUT /api/rooms/:id', () => {
     // Edge case: Missing room ID
     test('Should return 404 when room ID is empty string', async () => {
         // When request path is /api/rooms/, it becomes empty string for ID
-        const response = await request(app)
+        const response = await api
             .put('/api/rooms/')
-            .send({ name: 'New Name' });
+            .send({ name: 'New Name' })
+            .set({ Authorization: `bearer ${token}` });
 
         // Since ID is empty string, it won't find a matching room
         expect(response.status).toBe(404);
@@ -322,15 +399,17 @@ describe('Room Router - PUT /api/rooms/:id', () => {
 
     // Edge case: Missing room name
     test('Should return error when room name is missing', async () => {
-        const createRes = await request(app)
+        const createRes = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId = createRes.body.room.id;
 
-        const response = await request(app)
+        const response = await api
             .put(`/api/rooms/${roomId}`)
-            .send({});
+            .send({})
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(400);
         expect(response.body.message).toContain('required');
@@ -338,9 +417,10 @@ describe('Room Router - PUT /api/rooms/:id', () => {
 
     // Edge case: Non-existent room ID
     test('Should return error when room ID does not exist', async () => {
-        const response = await request(app)
+        const response = await api
             .put('/api/rooms/nonexistent-id')
-            .send({ name: 'New Name' });
+            .send({ name: 'New Name' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('Room not found.');
@@ -348,19 +428,22 @@ describe('Room Router - PUT /api/rooms/:id', () => {
 
     // Edge case: Duplicate room name
     test('Should return error when new name already exists', async () => {
-        const res1 = await request(app)
+        const res1 = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const res2 = await request(app)
+        const res2 = await api
             .post('/api/rooms')
-            .send({ name: 'Room B' });
+            .send({ name: 'Room B' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId2 = res2.body.room.id;
 
-        const response = await request(app)
+        const response = await api
             .put(`/api/rooms/${roomId2}`)
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(409);
         expect(response.body.message).toContain('already exists');
@@ -368,15 +451,17 @@ describe('Room Router - PUT /api/rooms/:id', () => {
 
     // Edge case: Update to same name
     test('Should allow updating room to the same name', async () => {
-        const createRes = await request(app)
+        const createRes = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId = createRes.body.room.id;
 
-        const response = await request(app)
+        const response = await api
             .put(`/api/rooms/${roomId}`)
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(200);
         expect(response.body.room.name).toBe('Room A');
@@ -384,40 +469,45 @@ describe('Room Router - PUT /api/rooms/:id', () => {
 
     // Update multiple rooms independently
     test('Should update one room without affecting others', async () => {
-        const res1 = await request(app)
+        const res1 = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const res2 = await request(app)
+        const res2 = await api
             .post('/api/rooms')
-            .send({ name: 'Room B' });
+            .send({ name: 'Room B' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId1 = res1.body.room.id;
 
-        const updateRes = await request(app)
+        const updateRes = await api
             .put(`/api/rooms/${roomId1}`)
-            .send({ name: 'Updated Room A' });
+            .send({ name: 'Updated Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(updateRes.status).toBe(200);
         expect(updateRes.body.room.name).toBe('Updated Room A');
 
         // Verify Room B is unchanged
-        const listRes = await request(app).get('/api/rooms');
+        const listRes = await api.get('/api/rooms');
         const roomB = listRes.body.find(r => r.id === res2.body.room.id);
         expect(roomB.name).toBe('Room B');
     });
 
     // Special characters in updated name
     test('Should allow special characters in updated room name', async () => {
-        const createRes = await request(app)
+        const createRes = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId = createRes.body.room.id;
 
-        const response = await request(app)
+        const response = await api
             .put(`/api/rooms/${roomId}`)
-            .send({ name: 'Conference Room - Floor 2 (Main)' });
+            .send({ name: 'Conference Room - Floor 2 (Main)' })
+            .set({ Authorization: `bearer ${token}` });
 
         expect(response.status).toBe(200);
         expect(response.body.room.name).toBe('Conference Room - Floor 2 (Main)');
@@ -425,17 +515,19 @@ describe('Room Router - PUT /api/rooms/:id', () => {
 
     // Verify list reflects update
     test('Should reflect updated room name in list', async () => {
-        const createRes = await request(app)
+        const createRes = await api
             .post('/api/rooms')
-            .send({ name: 'Room A' });
+            .send({ name: 'Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
         const roomId = createRes.body.room.id;
 
-        await request(app)
+        await api
             .put(`/api/rooms/${roomId}`)
-            .send({ name: 'Renamed Room A' });
+            .send({ name: 'Renamed Room A' })
+            .set({ Authorization: `bearer ${token}` });
 
-        const listRes = await request(app).get('/api/rooms');
+        const listRes = await api.get('/api/rooms');
 
         expect(listRes.body.length).toBe(1);
         expect(listRes.body[0].name).toBe('Renamed Room A');
