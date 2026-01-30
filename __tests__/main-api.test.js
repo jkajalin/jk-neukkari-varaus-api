@@ -4,6 +4,7 @@ const supertest = require('supertest');
 const app = require('../app');
 const { users } = require('../models/user-model');
 const { initialUsers } = require('./test_helper');
+const { rooms } = require('../models/data-stores');
 
 const testuser00 = { username: initialUsers[0].userName, password: initialUsers[0].password }
 let testuser00Token = 'empty baerer';
@@ -37,6 +38,7 @@ describe('Simplified main API tests', () => {
 
     });
 
+    // Login and create second user // depends on first user created above
     describe('Login and create second user', () => {
 
       test('Login is successful and token is placed', async () => {
@@ -62,6 +64,33 @@ describe('Simplified main API tests', () => {
           .expect(201)
           .expect('Content-Type', /application\/json/)
       });
+
+      test('Second user is listed', async () => {
+
+        const response = await api.get('/api/users');
+
+        const contents = response.body.map(u => u.userName);
+        expect(contents).toContain('jkajalin');
+
+      });
+
+      test('create a room with logged in user', async () => {
+
+        const newRoom = { "name": "Conference Hall" };
+
+        await api
+          .post('/api/rooms')
+          .send(newRoom)
+          .set({ Authorization: `bearer ${testuser00Token}` })
+          .expect(201)
+          .expect('Content-Type', /application\/json/);
+
+        roomsAtEnd = rooms;
+        expect(roomsAtEnd).toHaveLength(1);
+        expect(roomsAtEnd[0].name).toBe(newRoom.name);
+          
+      });
+
     });
 
   });
