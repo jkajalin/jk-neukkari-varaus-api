@@ -846,3 +846,27 @@ Response:
 "
 The room reservation test in main-api.test.js was failing because it was incorrectly referencing the room ID property. In the test, it used rooms[0].roomId, but the room objects in the data store actually have an id property (not roomId). This caused the reservation creation to fail with a "Room not found" error, since the router checks for r.id === roomId.
 "
+
+---------------
+
+30012026
+
+Prompt:
+"Yes. Please. Update create-reservation.test.js to correspond with current code base.
+
+Please dokument my pomps exactly and summaries of your responses, at end of PROMPTIT.md."
+
+Response:
+"
+I updated create-reservation.test.js to work with the current codebase. The original test was testing the router in isolation with mock data, but the current router uses global data stores and requires authentication for room creation.
+
+Key changes made:
+- Switched from testing the router directly to testing the full Express app using supertest.
+- Added beforeEach to clear data stores (users, rooms, reservations) for test isolation.
+- Implemented proper user creation and login to obtain an authentication token.
+- Created a helper function createRoom() that handles authenticated room creation.
+- Updated all test cases to use the api instance and the createRoom helper where rooms are needed.
+- Ensured all API calls use the correct endpoints and authentication headers.
+
+All 12 tests in create-reservation.test.js now pass, covering successful reservations, validation errors (missing fields, invalid times, past reservations, overlaps), and edge cases (same room different times, different rooms same time, exact boundary overlaps).
+"

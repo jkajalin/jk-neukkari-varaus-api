@@ -1,34 +1,50 @@
-const request = require('supertest');
-const express = require('express');
-const createReservationRouter = require('../controllers/reservation-router');
-const createRoomRouter = require('../controllers/room-router');
+const supertest = require('supertest');
+const app = require('../app');
+const { users } = require('../models/user-model');
+const { initialUsers } = require('./test_helper');
+const { rooms, reservations } = require('../models/data-stores');
+
+const api = supertest(app);
 
 describe('Reservation Router - POST /api/reservations', () => {
-    let app;
-    let reservations;
-    let rooms;
+    let token;
 
-    beforeEach(() => {
-        app = express();
-        app.use(express.json());
-        reservations = [];
-        rooms = [];
-        app.use('/api/reservations', createReservationRouter(reservations, rooms));
-        app.use('/api/rooms', createRoomRouter(rooms));
+    beforeEach(async () => {
+        // Clear data stores
+        users.length = 0;
+        rooms.length = 0;
+        reservations.length = 0;
+
+        // Create initial user
+        await api
+            .post('/api/users')
+            .send(initialUsers[0]);
+
+        // Login to get token
+        const loginRes = await api
+            .post('/api/login')
+            .send({ username: initialUsers[0].userName, password: initialUsers[0].password });
+        token = loginRes.body.token;
     });
+
+    // Helper function to create a room
+    const createRoom = async (name) => {
+        const response = await api
+            .post('/api/rooms')
+            .send({ name })
+            .set({ Authorization: `bearer ${token}` });
+        return response.body.room.id;
+    };
 
     // Valid reservation creation
     test('Should create a reservation successfully', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart = new Date(Date.now() + 86400000).toISOString(); // +1 day
         const futureEnd = new Date(Date.now() + 90000000).toISOString(); // +1 day + 1 hour
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -47,7 +63,7 @@ describe('Reservation Router - POST /api/reservations', () => {
         const futureStart = new Date(Date.now() + 86400000).toISOString();
         const futureEnd = new Date(Date.now() + 90000000).toISOString();
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 startTime: futureStart,
@@ -63,7 +79,7 @@ describe('Reservation Router - POST /api/reservations', () => {
         const futureStart = new Date(Date.now() + 86400000).toISOString();
         const futureEnd = new Date(Date.now() + 90000000).toISOString();
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId: 'nonexistent-room-id',
@@ -77,14 +93,11 @@ describe('Reservation Router - POST /api/reservations', () => {
 
     test('Should return error when startTime is missing', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureEnd = new Date(Date.now() + 90000000).toISOString();
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -97,14 +110,11 @@ describe('Reservation Router - POST /api/reservations', () => {
 
     test('Should return error when endTime is missing', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart = new Date(Date.now() + 86400000).toISOString();
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -118,14 +128,11 @@ describe('Reservation Router - POST /api/reservations', () => {
     // Edge case: Start time equals end time
     test('Should return error when start time equals end time', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart = new Date(Date.now() + 86400000).toISOString();
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -140,15 +147,12 @@ describe('Reservation Router - POST /api/reservations', () => {
     // Edge case: Start time after end time
     test('Should return error when start time is after end time', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart = new Date(Date.now() + 86400000).toISOString();
         const futureEnd = new Date(Date.now() + 3600000).toISOString();
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -163,15 +167,12 @@ describe('Reservation Router - POST /api/reservations', () => {
     // Edge case: Reservation in the past
     test('Should return error when reservation is in the past', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const pastStart = new Date(Date.now() - 86400000).toISOString(); // -1 day
         const pastEnd = new Date(Date.now() - 82800000).toISOString(); // -1 day + 1 hour
 
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -186,10 +187,7 @@ describe('Reservation Router - POST /api/reservations', () => {
     // Edge case: Overlapping reservations
     test('Should return error when room is already reserved', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart1 = new Date(Date.now() + 86400000).toISOString();
         const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
@@ -197,7 +195,7 @@ describe('Reservation Router - POST /api/reservations', () => {
         const futureEnd2 = new Date(Date.now() + 91800000).toISOString();
 
         // Create first reservation
-        await request(app)
+        await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -206,7 +204,7 @@ describe('Reservation Router - POST /api/reservations', () => {
             });
 
         // Try to create overlapping reservation
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -221,10 +219,7 @@ describe('Reservation Router - POST /api/reservations', () => {
     // Edge case: Same room different times (should work)
     test('Should allow reservations in same room at different times', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart1 = new Date(Date.now() + 86400000).toISOString();
         const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
@@ -232,7 +227,7 @@ describe('Reservation Router - POST /api/reservations', () => {
         const futureEnd2 = new Date(Date.now() + 97200000).toISOString();
 
         // Create first reservation
-        await request(app)
+        await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -241,7 +236,7 @@ describe('Reservation Router - POST /api/reservations', () => {
             });
 
         // Create second reservation in same room, different time
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -255,21 +250,14 @@ describe('Reservation Router - POST /api/reservations', () => {
     // Edge case: Different room same time (should work)
     test('Should allow different rooms to be reserved at the same time', async () => {
         // Create two rooms first
-        const roomRes1 = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId1 = roomRes1.body.room.id;
-
-        const roomRes2 = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room B' });
-        const roomId2 = roomRes2.body.room.id;
+        const roomId1 = await createRoom('Room A');
+        const roomId2 = await createRoom('Room B');
 
         const futureStart = new Date(Date.now() + 86400000).toISOString();
         const futureEnd = new Date(Date.now() + 90000000).toISOString();
 
         // Create reservation for Room A
-        await request(app)
+        await api
             .post('/api/reservations')
             .send({
                 roomId: roomId1,
@@ -278,7 +266,7 @@ describe('Reservation Router - POST /api/reservations', () => {
             });
 
         // Create reservation for Room B at the same time
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId: roomId2,
@@ -292,10 +280,7 @@ describe('Reservation Router - POST /api/reservations', () => {
     // Edge case: Exact overlap (start time = end time of existing reservation)
     test('Should allow reservation that starts exactly when another ends', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart1 = new Date(Date.now() + 86400000).toISOString();
         const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
@@ -303,7 +288,7 @@ describe('Reservation Router - POST /api/reservations', () => {
         const futureEnd2 = new Date(Date.now() + 93600000).toISOString();
 
         // Create first reservation
-        await request(app)
+        await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -312,7 +297,7 @@ describe('Reservation Router - POST /api/reservations', () => {
             });
 
         // Create second reservation starting exactly when first ends
-        const response = await request(app)
+        const response = await api
             .post('/api/reservations')
             .send({
                 roomId,
