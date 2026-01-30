@@ -870,3 +870,27 @@ Key changes made:
 
 All 12 tests in create-reservation.test.js now pass, covering successful reservations, validation errors (missing fields, invalid times, past reservations, overlaps), and edge cases (same room different times, different rooms same time, exact boundary overlaps).
 "
+
+---------------
+
+30012026
+
+Prompt:
+"Could you update cancel-reservation.test.js to correspond with current code base.
+
+Continue to dokument at end of PROMPTIT.md as I asked before."
+
+Response:
+"
+I updated cancel-reservation.test.js to work with the current codebase. The original test was testing the router in isolation with mock data stores, but the current router uses global data stores and requires authentication for room creation.
+
+Key changes made:
+- Switched from testing the router directly to testing the full Express app using supertest.
+- Added beforeEach to clear data stores (users, rooms, reservations) for test isolation.
+- Implemented proper user creation and login to obtain an authentication token.
+- Created a helper function createRoom() that handles authenticated room creation.
+- Updated all test cases to use the api instance and the createRoom helper where rooms are needed.
+- Ensured all API calls use the correct endpoints and authentication headers.
+
+All 5 tests in cancel-reservation.test.js now pass, covering successful cancellations, error handling for non-existent reservations, selective cancellation from multiple reservations, and multiple cancellation scenarios.
+"

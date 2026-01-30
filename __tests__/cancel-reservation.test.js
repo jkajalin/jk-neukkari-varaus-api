@@ -1,35 +1,51 @@
-const request = require('supertest');
-const express = require('express');
-const createReservationRouter = require('../controllers/reservation-router');
-const createRoomRouter = require('../controllers/room-router');
+const supertest = require('supertest');
+const app = require('../app');
+const { users } = require('../models/user-model');
+const { initialUsers } = require('./test_helper');
+const { rooms, reservations } = require('../models/data-stores');
+
+const api = supertest(app);
 
 describe('Reservation Router - DELETE /api/reservations', () => {
-    let app;
-    let reservations;
-    let rooms;
+    let token;
 
-    beforeEach(() => {
-        app = express();
-        app.use(express.json());
-        reservations = [];
-        rooms = [];
-        app.use('/api/reservations', createReservationRouter(reservations, rooms));
-        app.use('/api/rooms', createRoomRouter(rooms));
+    beforeEach(async () => {
+        // Clear data stores
+        users.length = 0;
+        rooms.length = 0;
+        reservations.length = 0;
+
+        // Create initial user
+        await api
+            .post('/api/users')
+            .send(initialUsers[0]);
+
+        // Login to get token
+        const loginRes = await api
+            .post('/api/login')
+            .send({ username: initialUsers[0].userName, password: initialUsers[0].password });
+        token = loginRes.body.token;
     });
+
+    // Helper function to create a room
+    const createRoom = async (name) => {
+        const response = await api
+            .post('/api/rooms')
+            .send({ name })
+            .set({ Authorization: `bearer ${token}` });
+        return response.body.room.id;
+    };
 
     // Valid cancellation by ID (path parameter)
     test('Should cancel a reservation by ID successfully', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart = new Date(Date.now() + 86400000).toISOString();
         const futureEnd = new Date(Date.now() + 90000000).toISOString();
 
         // Create reservation
-        const createResponse = await request(app)
+        const createResponse = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -40,7 +56,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
         const reservationId = createResponse.body.reservation.id;
 
         // Cancel reservation by ID
-        const response = await request(app)
+        const response = await api
             .delete(`/api/reservations/${reservationId}`);
 
         expect(response.status).toBe(200);
@@ -50,7 +66,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
 
     // Edge case: Cancelling non-existent reservation
     test('Should return error when reservation ID does not exist', async () => {
-        const response = await request(app)
+        const response = await api
             .delete('/api/reservations/nonexistent-id');
 
         expect(response.status).toBe(404);
@@ -60,10 +76,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
     // Edge case: Cancel specific reservation when multiple exist
     test('Should cancel only the specified reservation', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart1 = new Date(Date.now() + 86400000).toISOString();
         const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
@@ -71,7 +84,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
         const futureEnd2 = new Date(Date.now() + 97200000).toISOString();
 
         // Create two reservations for Room A
-        const res1 = await request(app)
+        const res1 = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -79,7 +92,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
                 endTime: futureEnd1
             });
 
-        const res2 = await request(app)
+        const res2 = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -90,7 +103,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
         const id1 = res1.body.reservation.id;
 
         // Cancel first reservation
-        const response = await request(app)
+        const response = await api
             .delete(`/api/reservations/${id1}`);
 
         expect(response.status).toBe(200);
@@ -101,16 +114,13 @@ describe('Reservation Router - DELETE /api/reservations', () => {
     // Edge case: Cancel reservation from different room
     test('Should not cancel reservation if ID does not match', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart = new Date(Date.now() + 86400000).toISOString();
         const futureEnd = new Date(Date.now() + 90000000).toISOString();
 
         // Create reservation for Room A
-        await request(app)
+        await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -119,7 +129,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
             });
 
         // Try to cancel with wrong ID
-        const response = await request(app)
+        const response = await api
             .delete('/api/reservations/wrong-id');
 
         expect(response.status).toBe(404);
@@ -129,10 +139,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
     // Edge case: Multiple cancellations
     test('Should successfully cancel multiple reservations', async () => {
         // Create a room first
-        const roomRes = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-        const roomId = roomRes.body.room.id;
+        const roomId = await createRoom('Room A');
 
         const futureStart1 = new Date(Date.now() + 86400000).toISOString();
         const futureEnd1 = new Date(Date.now() + 90000000).toISOString();
@@ -140,7 +147,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
         const futureEnd2 = new Date(Date.now() + 97200000).toISOString();
 
         // Create two reservations
-        const res1 = await request(app)
+        const res1 = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -148,7 +155,7 @@ describe('Reservation Router - DELETE /api/reservations', () => {
                 endTime: futureEnd1
             });
 
-        const res2 = await request(app)
+        const res2 = await api
             .post('/api/reservations')
             .send({
                 roomId,
@@ -160,10 +167,10 @@ describe('Reservation Router - DELETE /api/reservations', () => {
         const id2 = res2.body.reservation.id;
 
         // Cancel both
-        await request(app)
+        await api
             .delete(`/api/reservations/${id1}`);
 
-        const response = await request(app)
+        const response = await api
             .delete(`/api/reservations/${id2}`);
 
         expect(response.status).toBe(200);
