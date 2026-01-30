@@ -829,3 +829,20 @@ login.rest ✓
 room-operations.rest ✓
 user-operations.rest ✓
 "
+
+---------------
+
+30012026
+
+Prompt:
+"Could you identify why room reservation test fail"
+
+AI tries to run whole test bench. I press, skip.
+
+Prompt: 
+"Use main-api.test.js, other test most probably fails because they are not updated to work with current context"
+
+Response:
+"
+The room reservation test in main-api.test.js was failing because it was incorrectly referencing the room ID property. In the test, it used rooms[0].roomId, but the room objects in the data store actually have an id property (not roomId). This caused the reservation creation to fail with a "Room not found" error, since the router checks for r.id === roomId.
+"

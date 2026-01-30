@@ -21,11 +21,12 @@ app.use(tokenExtractor);
 app.disable('x-powered-by')
 
 // Use the routers
-app.use('/api/login', createLoginRouter());
-app.use('/api/reservations', createReservationRouter());
-app.use('/api/rooms', createRoomRouter());
 app.use('/api/users', usersRouter());
+app.use('/api/login', createLoginRouter());
+app.use('/api/rooms', createRoomRouter());
+app.use('/api/reservations', createReservationRouter());
 
+// Testing router, only active if NODE_ENV is set to 'test'
 if ( process.env.NODE_ENV === 'test' ) {
 
   const testingRouter = require('./controllers/test-router')
