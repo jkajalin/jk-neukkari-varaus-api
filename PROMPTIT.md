@@ -918,3 +918,32 @@ Key changes made:
 
 All 9 tests in get-reservations.test.js now pass, covering successful retrieval of reservations for specific rooms, empty room handling, multiple reservations per room, room-specific filtering, special character handling, case sensitivity, space handling, post-cancellation verification, and field validation.
 "
+
+---
+
+## Conversation 4
+
+### Prompt 4: Update list-rooms.test.js
+Could you update list-rooms.test.js to correspond with current code base.
+
+Continue to document at end of PROMPTIT.md as I asked before.
+
+### Response 4
+I successfully updated list-rooms.test.js to work with the current codebase architecture. The test file was using isolated router testing with direct request(app) calls, but needed to be updated to full app testing with authentication, following the same pattern established in the other updated test files.
+
+Key changes made:
+- Updated imports: Replaced 'request' and 'express' with 'supertest' and added data store imports
+- Modified beforeEach setup: Added data store clearing, user creation, login for authentication token, and createRoom helper function
+- Updated all 7 test cases: Replaced request(app) calls with api calls, used createRoom helper for room creation, and added authentication headers where required (for room deletion)
+- Maintained all original test logic and expectations while ensuring proper authentication and data isolation
+
+All 7 tests in list-rooms.test.js now pass, covering:
+- Empty room list handling
+- Single room retrieval
+- Multiple rooms with correct structure
+- Complete room listing
+- JSON format validation
+- Special character handling in room names
+- Room deletion reflection in listings
+
+The test suite now maintains consistency across all test files with proper authentication, data isolation, and full app testing patterns.

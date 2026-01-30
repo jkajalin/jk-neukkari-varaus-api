@@ -1,21 +1,44 @@
-const request = require('supertest');
-const express = require('express');
-const createRoomRouter = require('../controllers/room-router');
+const supertest = require('supertest');
+const app = require('../app');
+const { users } = require('../models/user-model');
+const { initialUsers } = require('./test_helper');
+const { rooms, reservations } = require('../models/data-stores');
+
+const api = supertest(app);
 
 describe('Room API - GET /api/rooms', () => {
-    let app;
-    let rooms;
+    let token;
 
-    beforeEach(() => {
-        app = express();
-        app.use(express.json());
-        rooms = [];
-        app.use('/api/rooms', createRoomRouter(rooms));
+    beforeEach(async () => {
+        // Clear data stores
+        users.length = 0;
+        rooms.length = 0;
+        reservations.length = 0;
+
+        // Create initial user
+        await api
+            .post('/api/users')
+            .send(initialUsers[0]);
+
+        // Login to get token
+        const loginRes = await api
+            .post('/api/login')
+            .send({ username: initialUsers[0].userName, password: initialUsers[0].password });
+        token = loginRes.body.token;
     });
+
+    // Helper function to create a room
+    const createRoom = async (name) => {
+        const response = await api
+            .post('/api/rooms')
+            .send({ name })
+            .set({ Authorization: `bearer ${token}` });
+        return response.body.room.id;
+    };
 
     // Empty list
     test('Should return empty array when no rooms exist', async () => {
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -25,11 +48,9 @@ describe('Room API - GET /api/rooms', () => {
 
     // Single room
     test('Should return single room when one room exists', async () => {
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
+        await createRoom('Room A');
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -41,19 +62,11 @@ describe('Room API - GET /api/rooms', () => {
 
     // Multiple rooms
     test('Should return multiple rooms with correct structure', async () => {
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
+        await createRoom('Room A');
+        await createRoom('Room B');
+        await createRoom('Conference Hall');
 
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room B' });
-
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Conference Hall' });
-
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -65,19 +78,11 @@ describe('Room API - GET /api/rooms', () => {
 
     // All rooms returned
     test('Should return all created rooms', async () => {
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
+        await createRoom('Room A');
+        await createRoom('Room A 2');
+        await createRoom('Room B');
 
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A 2' });
-
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room B' });
-
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -89,11 +94,9 @@ describe('Room API - GET /api/rooms', () => {
 
     // JSON format
     test('Should return proper JSON format with correct headers', async () => {
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Test Room' });
+        await createRoom('Test Room');
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -103,15 +106,10 @@ describe('Room API - GET /api/rooms', () => {
 
     // Special characters in room names
     test('Should handle room names with special characters', async () => {
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room-A_1.2' });
+        await createRoom('Room-A_1.2');
+        await createRoom('Main Conference Room (Floor 2)');
 
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Main Conference Room (Floor 2)' });
-
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
@@ -122,19 +120,15 @@ describe('Room API - GET /api/rooms', () => {
 
     // Deletion is reflected in list
     test('Should not include deleted rooms', async () => {
-        const res1 = await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room A' });
-
-        await request(app)
-            .post('/api/rooms')
-            .send({ name: 'Room B' });
+        const roomAId = await createRoom('Room A');
+        await createRoom('Room B');
 
         // Delete Room A
-        const roomId = res1.body.room.id;
-        await request(app).delete(`/api/rooms/${roomId}`);
+        await api
+            .delete(`/api/rooms/${roomAId}`)
+            .set({ Authorization: `bearer ${token}` });
 
-        const response = await request(app)
+        const response = await api
             .get('/api/rooms');
 
         expect(response.status).toBe(200);
