@@ -38,7 +38,7 @@ function createLoginRouter() {
       username: user.userName,
       id: user.userId, // fixed to userId used in "model"
     }
-    //console.log( 'login router - userForToken: ', userForToken )
+    //console.log( 'login router - userForToken: ', userForToken ) // debug
 
     // token expires in 60*60 seconds, that is, in one hour // multiplied by 12 for 12 hours
     const token = jwt.sign(

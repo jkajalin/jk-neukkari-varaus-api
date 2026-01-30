@@ -1,4 +1,5 @@
 const express = require('express');
+const config = require('./utils/config'); // Import configuration //loads dotenv // needed for tests and login router // some magic happens here
 const createReservationRouter = require('./controllers/reservation-router');
 const createRoomRouter = require('./controllers/room-router');
 
