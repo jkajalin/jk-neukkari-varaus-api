@@ -1,3 +1,7 @@
+/*
+* Pre-conditions: None
+* Post-conditions: Request details are logged to console (unless in test or production), then next() is called
+*/
 const requestLogger = (request, response, next) => {
 
   if (process.env.NODE_ENV !== 'test'){

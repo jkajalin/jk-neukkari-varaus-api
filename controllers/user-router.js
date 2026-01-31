@@ -5,11 +5,20 @@ const { v4: uuidv4 } = require('uuid');
 const { users } = require('../models/user-model');
 const userExtractor = require( '../middlewares/userExtractor' );
 
+/*
+* Pre-conditions: None
+* Post-conditions: Returns an Express router configured with user routes
+*/
 function createUserRouter() {
     const router = express.Router();
 
     // Create a new user
+    /*
+    * Pre-conditions: req.body contains userName, name, password; userName is unique; password length >= 19; either no users exist or user is authenticated
+    * Post-conditions: A new user object is added to the users array with hashed password and unique id, response sent with 201 status and the user data
+    */
     router.post('/', async ( request, response ) => {
+
         const { userName, name, password } = request.body;
         // Validate required fields
         if (!userName || !name || !password) {
@@ -52,7 +61,13 @@ function createUserRouter() {
 
     })
 
+    // Delete a user by ID
+    /*
+    * Pre-conditions: req.params.id is a valid user id that exists in users array; user is authenticated
+    * Post-conditions: The user with the given id is removed from the users array, response sent with 200 status
+    */
     router.delete('/:id', userExtractor, async (req, res) => {
+
         const { id } = req.params;
         
         if (!id) {
@@ -72,7 +87,12 @@ function createUserRouter() {
     });
 
     // Get all users
+    /*
+    * Pre-conditions: None
+    * Post-conditions: Returns an array of all users, response sent with 200 status
+    */
     router.get('/', (req, res) => {
+
         res.status(200).json(users);
     });
 

@@ -2,7 +2,10 @@ const jwt = require('jsonwebtoken')
 // Get users array from imported "model" data
 const { users } = require('../models/user-model')
 
-// Middleware to extract user
+/*
+* Pre-conditions: request.token is a valid JWT token signed with SECRET, users array is not empty
+* Post-conditions: request.user is set to the user object matching the token's id, or error response sent
+*/
 const userExtractor = (request, response, next) => {
 
   //console.log( 'userExtractor - request.token: ', request.token ) // debug

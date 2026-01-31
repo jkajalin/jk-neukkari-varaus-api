@@ -2,11 +2,20 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { reservations, rooms } = require('../models/data-stores');
 
+/*
+* Pre-conditions: None
+* Post-conditions: Returns an Express router configured with reservation routes
+*/
 function createReservationRouter() {
     const router = express.Router();
 
     // Create a reservation
+    /*
+    * Pre-conditions: req.body contains roomId, startTime, endTime; roomId exists in rooms; startTime < endTime; startTime >= now; no overlapping reservations for the room
+    * Post-conditions: A new reservation object is added to the reservations array with a unique id, response sent with 201 status and the reservation data
+    */
     router.post('/', (req, res) => {
+
         const { roomId, startTime, endTime } = req.body;
         
         // Validate required fields
@@ -27,19 +36,6 @@ function createReservationRouter() {
         // Check if start time is before end time
         if (start >= end) {
             return res.status(400).json({ message: 'Start time must be before end time.' });
-        }
-
-        // Check minimum duration (30 minutes)
-        const durationMs = end - start;
-        const minDurationMs = 30 * 60 * 1000; // 30 minutes
-        if (durationMs < minDurationMs) {
-            return res.status(400).json({ message: 'Reservation must be at least 30 minutes long.' });
-        }
-
-        // Check maximum duration (8 hours)
-        const maxDurationMs = 8 * 60 * 60 * 1000; // 8 hours
-        if (durationMs > maxDurationMs) {
-            return res.status(400).json({ message: 'Reservation cannot be longer than 8 hours.' });
         }
 
         // Check if the reservation is in the past
@@ -64,7 +60,12 @@ function createReservationRouter() {
     });
 
     // Cancel a reservation by ID
+    /*
+    * Pre-conditions: req.params.id is a valid reservation id that exists in reservations array
+    * Post-conditions: The reservation with the given id is removed from the reservations array, response sent with 200 status
+    */
     router.delete('/:id', (req, res) => {
+
         const { id } = req.params;
         
         if (!id) {
@@ -86,7 +87,12 @@ function createReservationRouter() {
     });
 
     // Get all reservations for a room
+    /*
+    * Pre-conditions: req.params.roomId is a valid room id
+    * Post-conditions: Returns an array of reservations for the given roomId, response sent with 200 status
+    */
     router.get('/:roomId', (req, res) => {
+
         const { roomId } = req.params;
         const roomReservations = reservations.filter(reservation => reservation.roomId === roomId);
         res.status(200).json(roomReservations);

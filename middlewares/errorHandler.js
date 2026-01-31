@@ -1,3 +1,7 @@
+/*
+* Pre-conditions: An error has been thrown in previous middleware/route handlers
+* Post-conditions: Appropriate error response is sent based on error type, or passes to next if not handled
+*/
 const errorHandler = ( error, request, response, next ) => {
 
   if (process.env.NODE_ENV !== 'test'){

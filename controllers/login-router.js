@@ -4,12 +4,23 @@ const bcrypt = require('bcrypt')
 //const router = require('express').Router()
 const { users } = require('../models/user-model');
 
-
+/*
+* Login Router
+* Pre-conditions: process.env.SECRET is defined
+* Post-conditions: Returns an Express router configured with login routes
+*/
 function createLoginRouter() {
 
   const loginRouter = express.Router()
 
+
+  // Endpoint for user login
+  /*
+  * Pre-conditions: req.body contains username, password; users array is not empty; user with username exists and password matches
+  * Post-conditions: A JWT token is generated and returned with user info, response sent with 200 status
+  */
   loginRouter.post('/', async (request, response) => {
+
     const { username, password } = request.body
 
     if ( !users &&  users.length === 0) {
@@ -20,9 +31,8 @@ function createLoginRouter() {
     
     //const users = Users; // get users array from parameter
     const user = users.find(user => user.userName === username );
-
-    // debug, is password hash working correctly?
-    //console.log( 'login router - passwordHash: ', user.passwordHash)
+    
+    //console.log( 'login router - passwordHash: ', user.passwordHash) // debug, is password hash working correctly?
 
     const passwordCorrect = user === null
       ? false

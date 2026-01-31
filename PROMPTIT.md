@@ -1008,6 +1008,7 @@ All 25 tests in room.test.js now pass, covering complete CRUD operations:
 
 The test suite now maintains consistency across all files with proper authentication, data isolation, and full app testing patterns. All 66 tests pass across the complete test suite.
 
+31012026a:
 ## Conversation X
 
 ### Prompt X: Familiarize yourself with project codebase. Add start and end conditions where's needed. 
@@ -1031,3 +1032,23 @@ I skipped below mentioned, while these might been quite good additions:
 - Added validation conditions in reservation creation: minimum 30 minutes and maximum 8 hours duration.
 
 -----
+31012026b:
+## Conversation X
+
+### Prompt X: Familiarize yourself with project codebase. Add pre-conditions and post-conditions as comments in code. 
+
+When done, update this my exact prompt and summary of your response to PROMPTIT.md
+
+### Response X
+Familiarized with the Node.js Express API for room reservations using in-memory storage, JWT authentication, and Jest testing.
+
+Added pre-conditions and post-conditions as comments in the format /*
+* Pre-conditions: 
+* Post-conditions:
+*/ to all functions in controllers/, models/, and middlewares/ (skipping server.js, app.js, config files, and test files).
+
+Functions updated:
+- Controllers: createReservationRouter, createRoomRouter, createUserRouter, createLoginRouter, test-router handlers
+- Middlewares: userExtractor, tokenExtractor, errorHandler, unknownEndpoint, requestLogger
+
+Updated PROMPTIT.md with this prompt and summary.
