@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "jest --verbose --runInBand --detectOpenHandles",
-    "start:test": "NODE_ENV=test node server.js",
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand --detectOpenHandles --testPathIgnorePatterns test_helper.js",
+    "start:test": "cross-env NODE_ENV=test node server.js",
     "test:watch": "jest --watch"
   },
   "author": "Jussi Kajalin",
@@ -20,6 +20,7 @@
     "uuid": "8.3.2"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "jest": "^30.2.0",
     "supertest": "^7.2.2"
   }
