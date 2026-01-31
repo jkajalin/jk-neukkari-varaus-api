@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "cross-env NODE_ENV=test jest --verbose --runInBand --detectOpenHandles --testPathIgnorePatterns test_helper.js",
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand --detectOpenHandles",
     "start:test": "cross-env NODE_ENV=test node server.js",
     "test:watch": "jest --watch"
   },
