@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "jest --detectOpenHandles",
+    "test": "jest --verbose --runInBand --detectOpenHandles",
+    "start:test": "NODE_ENV=test node server.js",
     "test:watch": "jest --watch"
   },
   "author": "Jussi Kajalin",
