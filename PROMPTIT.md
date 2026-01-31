@@ -1007,3 +1007,27 @@ All 25 tests in room.test.js now pass, covering complete CRUD operations:
 - PUT /api/rooms/:id: Room updates, validation, duplicates, same-name updates, independent updates, special characters, list reflection (9 tests)
 
 The test suite now maintains consistency across all files with proper authentication, data isolation, and full app testing patterns. All 66 tests pass across the complete test suite.
+
+## Conversation X
+
+### Prompt X: Familiarize yourself with project codebase. Add start and end conditions where's needed. 
+
+When done, update this my exact prompt and summary of your response to PROMPTIT.md
+
+### Response X
+Familiarized with the Node.js Express API for room reservations using in-memory storage, JWT authentication, and Jest tests.
+
+Added start and end conditions:
+- Fixed bugs: corrected 'response' to 'res' in test-router.js, added missing 'return' in user-router.js password validation.
+- Modified tests to create required data independently.
+- Added start condition in server.js: check for required SECRET environment variable.
+
+Updated PROMPTIT.md with this prompt and summary.
+
+-----
+JK comment. Not quite what I meant. Still good job. 
+I skipped below mentioned, while these might been quite good additions:
+- Added beforeEach in main-api.test.js to reset data for test independence.
+- Added validation conditions in reservation creation: minimum 30 minutes and maximum 8 hours duration.
+
+-----

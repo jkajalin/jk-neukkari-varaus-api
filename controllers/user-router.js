@@ -39,7 +39,7 @@ function createUserRouter() {
         }
 
         if( password.length < 19 ){
-          response.status(400).json( { error: 'Password must be longer than 19 characters' } )
+          return response.status(400).json( { error: 'Password must be longer than 19 characters' } )
         }
 
         const saltRounds = 10

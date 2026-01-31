@@ -29,6 +29,19 @@ function createReservationRouter() {
             return res.status(400).json({ message: 'Start time must be before end time.' });
         }
 
+        // Check minimum duration (30 minutes)
+        const durationMs = end - start;
+        const minDurationMs = 30 * 60 * 1000; // 30 minutes
+        if (durationMs < minDurationMs) {
+            return res.status(400).json({ message: 'Reservation must be at least 30 minutes long.' });
+        }
+
+        // Check maximum duration (8 hours)
+        const maxDurationMs = 8 * 60 * 60 * 1000; // 8 hours
+        if (durationMs > maxDurationMs) {
+            return res.status(400).json({ message: 'Reservation cannot be longer than 8 hours.' });
+        }
+
         // Check if the reservation is in the past
         if (start < now) {
             return res.status(400).json({ message: 'Reservation cannot be in the past.' });
