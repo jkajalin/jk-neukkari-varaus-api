@@ -374,6 +374,40 @@ Updated reservation IDs to use UUID v4 format instead of incremental IDs:
 
 ---
 
+21012026 - klo 20:59
+Tässä kohtaa "Alkuperäinen AI-generoitu commit"
+- Commitin taisin tehdä manuaalisesti itse?
+
+----------
+
+## Conversations 13
+
+Prompt: "could you move reservation router to controllers folder, and refactor code correspondingly"
+
+Response summary:
+
+Excellent! Done! I've successfully refactored the code by moving the router to a controllers folder:
+
+✅ Refactored structure:
+
+Created controllers directory
+Moved router to reservation.js
+Updated server.js import path
+Updated all 4 test files with new import paths
+Removed old reservation-router.js from root
+✅ New clean structure:
+
+✅ Benefits:
+
+Better code organization
+Follows MVC-like pattern
+Easier to scale as more controllers can be added
+Clear separation of concerns
+More professional project structure
+✅ All 32 tests still passing
+
+---
+
 ## Conversation 14
 
 ### Prompt 14: Rename file back to reservation-router.js
